@@ -1,7 +1,10 @@
 import { loadAll } from './csv.js';
 import * as S from './state.js';
-import { drawPack, rarityIndex, hasSSRorAbove, RARITY_ORDER } from './gacha.js';
+import { drawPack, rarityIndex, hasSSRorAbove, isGuaranteedPack, SR_GUARANTEE_EVERY, RARITY_ORDER } from './gacha.js';
 import * as B from './battle.js';
+import { initAds, showRewarded, showInterstitial } from './ads.js';
+import { share, shareUrl, initShare } from './share.js';
+import { buildShareImage } from './shareimg.js';
 
 let CARDS = [];
 let SYNERGIES = [];
@@ -52,11 +55,24 @@ async function init() {
     return;
   }
 
+  initAds();
+  initShare();
+
   if (!S.getState().homePref) {
     showOnboarding();
   } else {
     showHome();
   }
+}
+
+// 共有リンク（?vs=デッキコード）で開かれたら、対戦タブを開いてコードを自動入力する
+function applySharedCode() {
+  const vs = new URLSearchParams(location.search).get('vs');
+  if (!vs) return;
+  history.replaceState(null, '', location.pathname);   // リロードで再発火しないよう消す
+  document.querySelector('.tab-btn[data-tab="battle"]')?.click();
+  $('#friend-code').value = vs;
+  $('#battle-hint').textContent = 'フレンドのデッキコードを受け取りました。デッキを組んで「対戦する」を押そう！';
 }
 
 // ---------- 地元選択（初回 & 変更） ----------
@@ -110,6 +126,7 @@ function showHome() {
   renderSynergyTab();
   renderStamina();
   setInterval(renderStamina, 1000);
+  applySharedCode();
 }
 
 function setupTabs() {
@@ -162,15 +179,31 @@ function setupPackTab() {
   $('#open-pack-btn').onclick = () => tryOpenPack(false);
   $('#ticket-btn').onclick = () => tryOpenPack(true);
   $('#open-again-btn').onclick = () => {
+    // チケット優先で消費し、なければスタミナ。どちらも無ければ閉じる
+    if (S.getState().tickets > 0) {
+      tryOpenPack(true, true);   // 2パック目以降はパック破りを省略して即開封
+      return;
+    }
     if (S.getStamina() < S.PACK_COST) {
       closeOverlay();
       return;
     }
-    tryOpenPack(false, true);   // 2パック目以降はパック破りを省略して即開封
+    tryOpenPack(false, true);
   };
   $('#close-overlay-btn').onclick = closeOverlay;
   $('#ad-btn').onclick = showAd;
   $('#result-ad-btn').onclick = showAd;
+  // 開封結果のシェア: 5枚並びの画像＋いちばんレアな1枚の自慢文
+  $('#share-pull-btn').onclick = async () => {
+    if (!currentPack) return;
+    const best = [...currentPack].sort((a, b) => rarityIndex(b.rarity) - rarityIndex(a.rarity))[0];
+    const image = await buildShareImage({
+      title: '開封結果',
+      sub: `${best.rarity}『${best.name}』を引き当てた！`,
+      rows: [{ cards: currentPack.map(shareCardEntry) }],
+    });
+    share(`「地域カードバトル」で ${best.rarity}『${best.name}』を引き当てた！`, { image });
+  };
   $('#flip-all-btn').onclick = flipAll;
   $('#to-result-btn').onclick = showResult;
   // 画面のどこをタップしてもOK: パック破り／次の1枚めくり
@@ -200,10 +233,27 @@ function renderPackInfo() {
   if (tickets > 0) tBtn.innerHTML = `チケットで開ける <span class="cost">残り${tickets}枚</span>`;
 
   const st = S.getState();
-  const remDraws = 25 - (st.totalDraws % 25);
+  const g = nextGuarantee();
+  const remDraws = SR_GUARANTEE_EVERY - (st.totalDraws % SR_GUARANTEE_EVERY);
   const remPacks = Math.ceil(remDraws / 5);
-  $('#guarantee-hint').innerHTML =
-    `${icon('sparkles')}あと<b>${remPacks}</b>パックで SR以上確定`;
+  $('#guarantee-hint').innerHTML = g
+    ? `${icon('sparkles')}<b>次のパックは${g}以上確定！</b>`
+    : `${icon('sparkles')}あと<b>${remPacks}</b>パックで SR以上確定`;
+  showGuarantee($('#pack-visual'), $('#pack-badge'), g);
+}
+
+// 次に開けるパックに乗っている確定枠。無ければ null（天井のSSR確定を優先）
+function nextGuarantee() {
+  const st = S.getState();
+  if (st.pitySinceSSR >= S.PITY_THRESHOLD) return 'SSR';
+  if (isGuaranteedPack(st.totalDraws)) return 'SR';
+  return null;
+}
+
+function showGuarantee(packEl, badgeEl, g) {
+  packEl.classList.toggle('guaranteed', !!g);
+  badgeEl.classList.toggle('hidden', !g);
+  if (g) badgeEl.innerHTML = `${icon('sparkles')}${g}以上確定`;
 }
 
 function tryOpenPack(useTicket = false, quick = false) {
@@ -214,6 +264,7 @@ function tryOpenPack(useTicket = false, quick = false) {
   }
   const st = S.getState();
   const pity = st.pitySinceSSR >= S.PITY_THRESHOLD;
+  const guarantee = nextGuarantee();   // totalDrawsを進める前に、このパックの確定枠を確定させる
   currentPack = drawPack(CARDS, st.homePref, pity, st.totalDraws);
   st.totalDraws += currentPack.length;
   st.packsOpened++;
@@ -221,6 +272,12 @@ function tryOpenPack(useTicket = false, quick = false) {
   S.addCards(currentPack);
   S.save();
   renderStamina();
+
+  // 確定枠つきパックは、開ける前（パック）とめくる最中（カード）の両方で分かるようにする
+  showGuarantee($('#opening-pack'), $('#opening-badge'), guarantee);
+  const tag = $('#cards-badge');
+  tag.classList.toggle('hidden', !guarantee);
+  if (guarantee) tag.innerHTML = `${icon('sparkles')}このパックは${guarantee}以上確定`;
 
   // オーバーレイ表示。「もう1パック」からはパック破りを省略して即カードへ
   $('#pack-overlay').classList.remove('hidden');
@@ -247,12 +304,13 @@ function tearPack() {
   const pack = $('#opening-pack');
   pack.classList.add('tearing');
   flashScreen('white', 300);
+  navigator.vibrate?.([18, 26, 60]);   // スマホでは破る手応えを触覚でも返す
   setTimeout(() => {
     pack.classList.remove('tearing');
     tearing = false;
     layoutCards();
     showStage('stage-cards');
-  }, 480);
+  }, 540);
 }
 
 function layoutCards() {
@@ -333,21 +391,45 @@ function showResult() {
   renderPackInfo();
 }
 
-// スタミナが足りるなら「もう1パック」、足りなければ同じ位置に広告ボタンを出す
+// チケット→スタミナの優先順で「もう1パック」を出し、どちらも無ければ広告ボタンに切り替える
 function updateResultButtons() {
-  const enough = S.getStamina() >= S.PACK_COST;
-  $('#open-again-btn').classList.toggle('hidden', !enough);
-  $('#result-ad-btn').classList.toggle('hidden', enough);
+  const tickets = S.getState().tickets;
+  const canOpen = tickets > 0 || S.getStamina() >= S.PACK_COST;
+  const btn = $('#open-again-btn');
+  btn.classList.toggle('hidden', !canOpen);
+  btn.innerHTML = tickets > 0
+    ? `もう1パック <span class="cost">${icon('gift')}チケット残り${tickets}</span>`
+    : `もう1パック <span class="cost">${icon('bolt')}2</span>`;
+  $('#result-ad-btn').classList.toggle('hidden', canOpen);
 }
 
 function closeOverlay() {
   $('#pack-overlay').classList.add('hidden');
   renderPackInfo();
   renderStamina();
+  showInterstitial('pack-close');   // 区切りの全画面広告（クールダウン付き・未設定なら無音）
 }
 
-// ---------- 広告（ダミー） ----------
+// ---------- 広告 ----------
+// 本物のリワード広告（ads.jsのAD_CLIENT設定時）を優先し、
+// 未設定・読み込み失敗時は開発用ダミーモーダルにフォールバックする
 function showAd() {
+  const usedRealAd = showRewarded('stamina-refill', grantAdReward);
+  if (!usedRealAd) showDummyAd();
+}
+
+// 広告視聴の報酬: スタミナ全回復
+function grantAdReward() {
+  S.watchAd();
+  renderStamina();
+  // 開封結果画面から広告を見た場合は、その場で「もう1パック」に戻す
+  if (!$('#pack-overlay').classList.contains('hidden') &&
+      !$('#stage-result').classList.contains('hidden')) {
+    updateResultButtons();
+  }
+}
+
+function showDummyAd() {
   const modal = $('#ad-modal');
   modal.classList.remove('hidden');
   let remain = 15;
@@ -359,15 +441,19 @@ function showAd() {
     if (remain <= 0) {
       clearInterval(timer);
       modal.classList.add('hidden');
-      S.watchAd();
-      renderStamina();
-      // 開封結果画面から広告を見た場合は、その場で「もう1パック」に戻す
-      if (!$('#pack-overlay').classList.contains('hidden') &&
-          !$('#stage-result').classList.contains('hidden')) {
-        updateResultButtons();
-      }
+      grantAdReward();
     }
   }, 1000);
+}
+
+// シェア画像用のカード情報（写真はサムネイルで十分）
+function shareCardEntry(card) {
+  const img = IMAGES.get(card.id);
+  return {
+    name: card.name, rarity: card.rarity,
+    attack: card.attack, defense: card.defense,
+    artSrc: img ? artUrl(img, true) : null,
+  };
 }
 
 // ---------- カードHTML ----------
@@ -628,6 +714,20 @@ function setupBattleTab() {
     $('#copy-code-btn').textContent = 'コピーした！';
     setTimeout(() => { $('#copy-code-btn').textContent = 'コピー'; }, 1200);
   };
+  // デッキコードのシェア: デッキ画像＋開くと相手のコード欄に自動入力されるリンク（?vs=）
+  $('#share-code-btn').onclick = async () => {
+    const cards = deckCards();
+    if (cards.length < B.DECK_SIZE) return;
+    const code = cards.map(c => c.id).join('-');
+    const power = B.analyzeDeck(cards, SYNERGIES).total;
+    const image = await buildShareImage({
+      title: '挑戦者求む！',
+      sub: `戦闘力 ${fmt(power)}`,
+      rows: [{ cards: cards.map(shareCardEntry) }],
+      footer: `デッキコード: ${code}`,
+    });
+    share(`「地域カードバトル」戦闘力${fmt(power)}のデッキで待ってるぞ！ コード: ${code}`, { url: shareUrl({ vs: code }), image });
+  };
   $('#friend-battle-btn').onclick = () => {
     const ids = $('#friend-code').value.trim().split(/[-,\s]+/).filter(Boolean);
     const deck = ids.map(id => CARDS.find(c => c.id === id.toUpperCase())).filter(Boolean);
@@ -647,6 +747,7 @@ function setupBattleTab() {
     $('#battle-overlay').classList.add('hidden');
     renderBattleTab();
     renderPackInfo();
+    showInterstitial('battle-close');
   };
   $('#battle-again-btn').onclick = () => startBattle(lastBattleOpts);
 }
@@ -813,6 +914,8 @@ function renderBattleTab() {
   $('#my-deck-code').textContent = deck.length === B.DECK_SIZE
     ? deck.map(c => c.id).join('-')
     : 'デッキを5枚組むと表示されます';
+  $('#share-code-btn').classList.toggle('hidden', deck.length !== B.DECK_SIZE);
+  $('#copy-code-btn').classList.toggle('hidden', deck.length !== B.DECK_SIZE);
 }
 
 // プールも段階表示（全所持カードの一括DOM構築は重いため）
@@ -991,13 +1094,17 @@ function showBattleResult() {
   // ボス初撃破の報酬
   let bossLine = '';
   if (opts?.bossPref && result === 'win') {
-    const bossGained = S.recordBossDefeat(opts.bossPref);
+    const bossGained = S.recordBossDefeat(opts.bossPref);   // null=撃破済み / 0以上=初撃破の獲得チケット
     const count = S.getState().defeatedBosses.length;
-    bossLine = bossGained > 0
-      ? `<div class="reward-line">${icon('check')}${opts.label}を撃破！（${count}/${BOSSES.length}）チケット <b>+${bossGained}</b>枚</div>`
-      : `<div class="next-reward">${opts.label}に勝利（撃破済み）</div>`;
-    if (count === BOSSES.length && bossGained > 0) {
-      bossLine += `<div class="reward-line">${icon('sparkles')}全国制覇達成！！</div>`;
+    if (bossGained === null) {
+      bossLine = `<div class="next-reward">${opts.label}に勝利（撃破済み）</div>`;
+    } else {
+      bossLine = `<div class="reward-line">${icon('check')}${opts.label}を撃破！（${count}/${BOSSES.length}）${bossGained > 0 ? `チケット <b>+${bossGained}</b>枚` : ''}</div>`;
+      if (count === BOSSES.length) {
+        bossLine += `<div class="reward-line">${icon('sparkles')}全国制覇達成！！</div>`;
+      } else if (bossGained === 0) {
+        bossLine += `<div class="next-reward">あと${5 - count % 5}体撃破でチケット+2</div>`;
+      }
     }
   }
   const st = S.getState();
@@ -1016,6 +1123,30 @@ function showBattleResult() {
       ${gained > 0 ? `<div class="reward-line">${icon('gift')}連勝ボーナス！ パックチケット <b>+${gained}</b>枚</div>` : ''}
       ${result === 'win' && gained === 0 ? `<div class="next-reward">次のボーナスまであと${nextRewardIn(streak)}勝</div>` : ''}
     </div>`;
+
+  // 対戦結果のシェア文面（ボス撃破 > 連勝 > 通常勝利 > 敗北 の順で自慢度が高いものを出す）
+  const shareText = (() => {
+    if (result === 'win' && opts?.bossPref) {
+      return `「地域カードバトル」で${opts.label}を撃破！（全国制覇 ${S.getState().defeatedBosses.length}/${BOSSES.length}）`;
+    }
+    if (result === 'win') {
+      const streakNote = streak >= 3 ? ` ただいま${streak}連勝中！` : '';
+      return `「地域カードバトル」戦闘力${fmt(pA.total)}で${res.tier}！${streakNote}`;
+    }
+    return `「地域カードバトル」戦闘力${fmt(pA.total)}で挑むも敗北…誰かリベンジ手伝って`;
+  })();
+  // シェア画像: 両者のデッキ5枚ずつを並べ、負けた側を暗く落とす
+  $('#battle-share-btn').onclick = async () => {
+    const image = await buildShareImage({
+      title: result === 'win' ? 'WIN！' : result === 'lose' ? 'LOSE…' : 'DRAW',
+      sub: `戦闘力 あなた ${fmt(pA.total)} − ${fmt(cA.total)} ${oppName}`,
+      rows: [
+        { label: oppName, labelColor: '#c9a3f5', dim: result === 'win', cards: cA.cards.map(x => shareCardEntry(x.card)) },
+        { label: 'あなた', labelColor: '#f2c14e', dim: result === 'lose', cards: pA.cards.map(x => shareCardEntry(x.card)) },
+      ],
+    });
+    share(shareText, { image });
+  };
   // 結果画面の主ボタンを文脈に合わせる:
   // ボス勝利→次の主へ / ボス敗北→ガチャに誘導 / それ以外→もう一戦
   const againBtn = $('#battle-again-btn');

@@ -86,6 +86,38 @@ body::before {
 .link-btn { background: none; border: none; color: #4a5168; font-size: 11px; cursor: pointer; text-decoration: underline; }
 #footer { text-align: center; padding: 24px; }
 .credit-note { font-size: 10px; color: #3f465c; margin-bottom: 8px; }
+.footer-links {
+  display: flex; flex-wrap: wrap; gap: 6px 16px; justify-content: center;
+  font-size: 12px; margin-bottom: 12px;
+}
+.footer-links a { color: #6a7288; text-decoration: none; }
+.footer-links a:hover { color: var(--text); text-decoration: underline; }
+
+/* ================= 静的ページ（about / privacy / terms / credits） ================= */
+.doc-page { max-width: 760px; margin: 0 auto; padding: 26px 20px 60px; line-height: 1.95; }
+.doc-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 30px; }
+.doc-logo {
+  font-family: var(--font-display); font-weight: 700; font-size: 19px;
+  letter-spacing: .12em; color: var(--accent); text-decoration: none; white-space: nowrap;
+}
+.doc-page h1 { font-family: var(--font-display); font-size: 26px; letter-spacing: .08em; margin-bottom: 6px; }
+.doc-date { font-size: 12px; color: var(--sub); margin-bottom: 26px; }
+.doc-page h2 {
+  font-size: 17px; margin: 34px 0 10px; padding-left: 10px;
+  border-left: 3px solid var(--accent);
+}
+.doc-page p, .doc-page li { font-size: 14px; color: #cdd3e4; }
+.doc-page p { margin: 8px 0; }
+.doc-page ul, .doc-page ol { padding-left: 24px; margin: 8px 0; }
+.doc-page a { color: #8fb8e8; }
+.doc-page table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 14px; }
+.doc-page th, .doc-page td { border: 1px solid var(--line); padding: 6px 9px; text-align: left; color: #cdd3e4; word-break: break-word; }
+.doc-page th { background: var(--glass); color: var(--text); }
+.doc-nav {
+  margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--line);
+  display: flex; flex-wrap: wrap; gap: 8px 18px; font-size: 13px;
+}
+.doc-footer { margin-top: 26px; font-size: 11px; color: #4a5168; }
 
 /* ================= 地元選択 ================= */
 .onboard-inner { max-width: 760px; margin: 0 auto; padding: 56px 20px 90px; text-align: center; }
@@ -227,12 +259,44 @@ body::before {
   margin: 0 auto; line-height: 1;
 }
 .pack-label-sub { font-size: 10px; letter-spacing: .28em; opacity: .85; margin-top: 18px; }
-.pack-visual.tearing { animation: tear .45s ease-in forwards; }
+/* パック破りは画面基準（fixed）で拡大させる。
+   .stage は横スクロール防止のため overflow:hidden なので、stage内のまま拡大すると
+   特にスマホでパックが枠に切り取られて演出が欠ける */
+.pack-visual.tearing {
+  position: fixed; top: 50%; left: 50%; margin: 0; z-index: 200;
+  animation: tear .55s cubic-bezier(.35, .1, .5, 1) forwards;
+}
 @keyframes tear {
-  20% { transform: rotate(-4deg) scale(1.05); }
-  45% { transform: rotate(4deg) scale(1.12); }
-  75% { transform: rotate(-2deg) scale(1.28); opacity: 1; }
-  100% { transform: scale(2.3); opacity: 0; }
+  0%   { transform: translate(-50%, -50%) scale(1) rotate(0); }
+  16%  { transform: translate(-50%, -50%) scale(1.06) rotate(-5deg); }
+  38%  { transform: translate(-50%, -50%) scale(1.18) rotate(5deg); }
+  68%  { transform: translate(-50%, -50%) scale(1.6) rotate(-2deg); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(4.6); opacity: 0; }
+}
+
+/* SR以上確定パック: 開ける前から金色で分かるようにする */
+.pack-badge {
+  position: absolute; top: 12px; left: 50%; transform: translateX(-50%); z-index: 2;
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 4px 12px; border-radius: 999px; white-space: nowrap;
+  font-size: 11px; font-weight: 700; letter-spacing: .06em; color: #241800;
+  background: linear-gradient(135deg, #f9df9a, #f2c14e 55%, #dd9f2e);
+  box-shadow: 0 4px 14px rgba(242, 193, 78, .5);
+}
+.pack-visual.guaranteed {
+  box-shadow:
+    0 18px 50px rgba(242, 193, 78, .45),
+    0 0 0 2px rgba(242, 193, 78, .8),
+    inset 0 1px 0 rgba(255, 255, 255, .35);
+}
+.pack-visual.guaranteed .pack-shine { animation-duration: 1.4s; }
+/* カードめくり画面でも確定パックだったことが分かるように残す */
+.guarantee-tag {
+  display: inline-flex; align-items: center; gap: 5px;
+  margin-bottom: 12px; padding: 5px 15px; border-radius: 999px;
+  font-size: 12px; font-weight: 700; letter-spacing: .06em; color: #241800;
+  background: linear-gradient(135deg, #f9df9a, #f2c14e 55%, #dd9f2e);
+  box-shadow: 0 4px 16px rgba(242, 193, 78, .45);
 }
 .collection-progress { color: var(--sub); margin-bottom: 18px; font-size: 14px; letter-spacing: .04em; }
 .pack-hint { margin-top: 16px; font-size: 13px; color: var(--accent); opacity: .9; }
@@ -979,6 +1043,20 @@ body:has(.overlay:not(.hidden)) { overflow: hidden; }
   .viewer-tilt .game-card { width: 82vw; min-height: 120vw; }
 }
 .ad-box { width: 330px; }
+
+/* ================= SNS共有シート ================= */
+.share-box { width: 430px; max-width: calc(100vw - 32px); }
+.share-title { font-weight: 700; margin-bottom: 12px; letter-spacing: .08em; }
+.share-preview {
+  font-family: inherit; font-size: 12px; color: var(--sub); text-align: left;
+  background: rgba(0, 0, 0, .35); border: 1px solid var(--line);
+  border-radius: 10px; padding: 10px 12px; margin-bottom: 14px;
+  white-space: pre-wrap; word-break: break-all; max-height: 130px; overflow-y: auto;
+}
+.share-btns { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 12px; }
+.share-btns a { text-decoration: none; }
+.share-img { width: 100%; border-radius: 10px; border: 1px solid var(--line); margin-bottom: 10px; }
+.share-note { font-size: 10px; color: #5c6478; margin-bottom: 10px; line-height: 1.6; }
 .ad-title { display: flex; align-items: center; justify-content: center; gap: 6px; font-weight: 700; margin-bottom: 14px; }
 .ad-fake {
   height: 165px; background: rgba(0, 0, 0, .35); border: 1px dashed var(--line2);
@@ -1069,8 +1147,13 @@ body.shake { animation: shakeBody .5s; }
   .result-row { padding: 8px 12px; margin-bottom: 6px; gap: 8px; }
   .result-name { font-size: 14px; }
   .overlay { background: rgba(7, 9, 16, .99); }
-  .pack-visual { width: 190px; height: 262px; }
+  .pack-visual { width: min(56vw, 220px); height: min(77vw, 303px); }
   .pack-label-title { font-size: 50px; }
+  /* 開封中のパックはホームの飾りより一回り大きく見せて迫力を出す
+     （このステージには他の要素がヒント文しか無いので画面を使い切れる） */
+  #opening-pack { width: min(72vw, 280px); height: min(99vw, 386px); }
+  #opening-pack .pack-label-title { font-size: 62px; }
+  .pack-badge { font-size: 10px; padding: 4px 11px; }
   .card-name { font-size: 17px; }
   /* 「パックを開ける」「チケットで開ける」は縦積みにして間隔を確保
      （インライン折返しだと行間ゼロでグローの影が重なる） */

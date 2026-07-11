@@ -137,12 +137,18 @@ export function useTicket() {
   return true;
 }
 
-/** ボス初撃破を記録。獲得チケット数を返す（初回+1、10/20/30/40/47体目の節目+3） */
+/**
+ * ボス初撃破を記録。獲得チケット数を返す（撃破済みならnull）。
+ * 配布は節目のみ: 5体ごと+2、全国制覇(47体)でさらに+5（合計23枚）。
+ * 毎撃破+1だと計62枚でガチャ経済が崩壊するため絞っている
+ */
 export function recordBossDefeat(pref) {
-  if (state.defeatedBosses.includes(pref)) return 0;
+  if (state.defeatedBosses.includes(pref)) return null;
   state.defeatedBosses.push(pref);
-  let gained = 1;
-  if ([10, 20, 30, 40, 47].includes(state.defeatedBosses.length)) gained += 3;
+  const n = state.defeatedBosses.length;
+  let gained = 0;
+  if (n % 5 === 0) gained += 2;
+  if (n === 47) gained += 5;
   state.tickets += gained;
   save();
   return gained;

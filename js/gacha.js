@@ -53,6 +53,11 @@ function drawOne(cards, homePref, minRarity = 0) {
  * - pityGuarantee=true なら1枚SSR以上確定（天井）
  * totalDrawsStart: これまでの通算ドロー枚数（確定周期の判定に使う）
  */
+// 次に引く1パック（5枚）にSR以上確定の枠が含まれるか（開封前のバッジ表示に使う）
+export function isGuaranteedPack(totalDraws) {
+  return SR_GUARANTEE_EVERY - (totalDraws % SR_GUARANTEE_EVERY) <= 5;
+}
+
 export function drawPack(cards, homePref, pityGuarantee, totalDrawsStart = 0) {
   const pack = [];
   for (let i = 0; i < 5; i++) {
