@@ -423,24 +423,69 @@ function showCardModal(card) {
     </div>`;
   modal.classList.remove('hidden');
 
-  // マウス追従の3Dチルト＋グレア（実物のキラカードを傾ける感覚）
+  // マウス／指なぞり追従の3Dチルト＋グレア（実物のキラカードを傾ける感覚）
+  // Pointer Eventsでマウスとタッチを共通処理。タッチはpointerdown後にmoveが飛んでくる
   const tilt = $('#viewer-tilt');
-  tilt.onmousemove = (e) => {
-    const r = tilt.getBoundingClientRect();
-    const x = (e.clientX - r.left) / r.width;
-    const y = (e.clientY - r.top) / r.height;
+  const applyTilt = (x, y) => {   // x, y: カード上の位置 0〜1
     tilt.style.transform = `rotateY(${((x - .5) * 16).toFixed(1)}deg) rotateX(${((.5 - y) * 13).toFixed(1)}deg)`;
     tilt.style.setProperty('--gx', `${(x * 100).toFixed(1)}%`);
     tilt.style.setProperty('--gy', `${(y * 100).toFixed(1)}%`);
     tilt.classList.add('tilting');
   };
-  tilt.onmouseleave = () => {
+  const resetTilt = () => {
     tilt.style.transform = '';
     tilt.classList.remove('tilting');
   };
+  const fromPointer = (e) => {
+    const r = tilt.getBoundingClientRect();
+    applyTilt(
+      Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)),
+      Math.max(0, Math.min(1, (e.clientY - r.top) / r.height)));
+  };
+  let touching = false;
+  tilt.onpointerdown = (e) => {
+    touching = true;
+    tilt.setPointerCapture(e.pointerId);  // 指がカード外に出ても追従を続ける
+    fromPointer(e);
+  };
+  tilt.onpointermove = fromPointer;
+  tilt.onpointerup = tilt.onpointercancel = () => { touching = false; resetTilt(); };
+  tilt.onpointerleave = () => { if (!touching) resetTilt(); };
 
-  $('#modal-close').onclick = () => modal.classList.add('hidden');
-  modal.onclick = (e) => { if (e.target === modal) modal.classList.add('hidden'); };
+  // スマホ: 端末の傾き（ジャイロ）でもチルト。開いた瞬間の持ち角度を基準に±30度でフルチルト。
+  // 指なぞり操作中はそちらを優先する
+  let gyroBase = null;
+  const onOrient = (ev) => {
+    if (touching || ev.beta == null || ev.gamma == null) return;
+    if (!gyroBase) gyroBase = { beta: ev.beta, gamma: ev.gamma };
+    applyTilt(
+      Math.max(0, Math.min(1, .5 + (ev.gamma - gyroBase.gamma) / 60)),
+      Math.max(0, Math.min(1, .5 + (ev.beta - gyroBase.beta) / 60)));
+  };
+  enableGyro(onOrient);
+
+  const close = () => {
+    modal.classList.add('hidden');
+    window.removeEventListener('deviceorientation', onOrient);
+  };
+  $('#modal-close').onclick = close;
+  modal.onclick = (e) => { if (e.target === modal) close(); };
+}
+
+// iOSはジャイロ利用にユーザー操作起点の許可が必要（初回のみダイアログが出る）。
+// カード表示はタップから呼ばれるのでここで要求できる。拒否されたら指なぞりのみで動く
+let gyroPermission = null;   // null=未確認 / 'granted' / 'denied'
+function enableGyro(handler) {
+  if (typeof DeviceOrientationEvent === 'undefined') return;
+  if (typeof DeviceOrientationEvent.requestPermission !== 'function' || gyroPermission === 'granted') {
+    window.addEventListener('deviceorientation', handler);
+    return;
+  }
+  if (gyroPermission === 'denied') return;
+  DeviceOrientationEvent.requestPermission().then(res => {
+    gyroPermission = res;
+    if (res === 'granted') window.addEventListener('deviceorientation', handler);
+  }).catch(() => { gyroPermission = 'denied'; });
 }
 
 // ---------- 図鑑 ----------

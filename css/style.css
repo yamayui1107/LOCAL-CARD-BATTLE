@@ -309,6 +309,10 @@ body:has(.overlay:not(.hidden)) { overflow: hidden; }
   color: rgba(242, 193, 78, .8); line-height: 1;
 }
 .flip-front { transform: rotateY(180deg); }
+/* 開封カードは通常カードより幅が狭いので、攻/防チップを詰めて4〜5桁でもはみ出さないようにする */
+.flip-card .game-card { padding: 11px 8px 9px; }
+.flip-card .card-stats { gap: 6px; }
+.flip-card .stat { font-size: 11px; padding: 2.5px 8px; gap: 4px; }
 
 /* めくる前のオーラ（期待感） */
 .aura-sr .flip-back { border-color: var(--c-sr); box-shadow: 0 0 20px rgba(160, 110, 224, .55); animation: pulse 1.2s ease-in-out infinite; }
@@ -924,6 +928,8 @@ body:has(.overlay:not(.hidden)) { overflow: hidden; }
   position: relative; transform-style: preserve-3d; will-change: transform;
   transition: transform .18s ease-out;
   animation: viewerIn .55s cubic-bezier(.2, .85, .3, 1.1);
+  /* 指なぞりチルト用: ドラッグをスクロールや文字選択に取られない */
+  touch-action: none; user-select: none; -webkit-user-select: none;
 }
 @keyframes viewerIn {
   0% { transform: scale(.5) rotateY(24deg); opacity: 0; }
@@ -1050,6 +1056,19 @@ body.shake { animation: shakeBody .5s; }
   /* 3枚+2枚の2段で収まるサイズ（30vwだと2枚ずつ3段になる） */
   .flip-card { width: 27vw; height: 38vw; max-width: 132px; max-height: 188px; }
   #card-row { gap: 8px; }
+  /* めくったカードは幅約100pxしかないため、攻/防は縦積みにしてはみ出しを防ぐ。
+     タグ・落款は非表示にして名前と数値を優先 */
+  .flip-card .game-card { padding: 8px 6px 6px; min-height: 0; }
+  .flip-card .card-name { font-size: 15px; margin-top: 6px; }
+  .flip-card .card-stats { flex-direction: column; align-items: center; gap: 3px; margin-top: 6px; }
+  .flip-card .stat { font-size: 10px; padding: 1.5px 8px; }
+  .flip-card .card-tags, .flip-card .card-seal { display: none; }
+  /* 開封結果: 小さい画面でも5行+下部バーが1画面に収まるよう行を詰める。
+     背後のホーム画面が透けて紛らわしいのでオーバーレイはほぼ不透明に */
+  #stage-result h2 { font-size: 18px; margin-bottom: 12px; }
+  .result-row { padding: 8px 12px; margin-bottom: 6px; gap: 8px; }
+  .result-name { font-size: 14px; }
+  .overlay { background: rgba(7, 9, 16, .99); }
   .pack-visual { width: 190px; height: 262px; }
   .pack-label-title { font-size: 50px; }
   .card-name { font-size: 17px; }
