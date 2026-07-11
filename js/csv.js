@@ -1,6 +1,7 @@
 // シンプルなCSVパーサ（クォート対応）
 export function parseCSV(text) {
-  const lines = text.replace(/\r\n/g, '\n').split('\n').filter(l => l.trim() !== '');
+  // BOM付きで保存されると先頭列名が壊れるので剥がしておく
+  const lines = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').split('\n').filter(l => l.trim() !== '');
   const header = splitLine(lines[0]);
   return lines.slice(1).map(line => {
     const cells = splitLine(line);

@@ -21,9 +21,11 @@ const synergies = read('synergy_master.csv').map(r => ({ ...r, count: +r.count, 
 
 const PREFS = ['北海道','青森県','岩手県','宮城県','秋田県','山形県','福島県','茨城県','栃木県','群馬県','埼玉県','千葉県','東京都','神奈川県','新潟県','富山県','石川県','福井県','山梨県','長野県','岐阜県','静岡県','愛知県','三重県','滋賀県','京都府','大阪府','兵庫県','奈良県','和歌山県','鳥取県','島根県','岡山県','広島県','山口県','徳島県','香川県','愛媛県','高知県','福岡県','佐賀県','長崎県','熊本県','大分県','宮崎県','鹿児島県','沖縄県'];
 
-// 難易度カーブ: 最初の主12,000 → 最終ボス1,150,000（理論値1,266,596の約91%。
-// 全所持おまかせ編成(約672,000)では勝てず、手動で最適構成を組んだ者だけが届く）
-const T_MIN = 12000, T_MAX = 1150000;
+// 難易度カーブ: 最初の主12,000 → 最終ボス約70,000,000。
+// 理論値(96,820,446)の近傍は五大都市デッキ(71.3M〜96.8M)しか存在しない「谷」なので、
+// 実在するデッキ分布に合わせて70Mを目標にする（全所持おまかせ編成は約15.7Mで届かない。
+// 理論値・おまかせ上限は tools/analyze_synergy.mjs で実測できる）
+const T_MIN = 12000, T_MAX = 70000000;
 const target = i => Math.round(T_MIN * Math.pow(T_MAX / T_MIN, i / 46));
 
 const power = deck => analyzeDeck(deck, synergies).total;
@@ -61,6 +63,12 @@ function findApexDeck() {
 const APEX = findApexDeck();
 console.log(`理論最強級デッキ: ${power(APEX).toLocaleString()} [${APEX.map(c => c.name).join(' ')}]`);
 
+// ボスが理論値ちょうど（＝絶対に勝てない）にならないよう、全ボスに上限を設ける
+const P_CAP = Math.round(power(APEX) * 0.93);
+
+// 高目標の微調整用: タグを多く持つ精鋭カード（大都市など）は常に交換候補に入れる
+const ELITES = cards.filter(c => c.tags.length >= 5);
+
 // |戦闘力-目標| を最小化する山登り。序盤ボスは地元カード主体、
 // 高目標は最強デッキを種にして目標まで「下る」（上りの探索では特定カードにたどり着けない）
 function buildBossDeck(pref, T, rand = Math.random) {
@@ -74,17 +82,19 @@ function buildBossDeck(pref, T, rand = Math.random) {
       deck = [...local].sort(() => rand() - .5).slice(0, DECK_SIZE);
     }
     while (deck.length < DECK_SIZE) deck.push(cards[Math.floor(rand() * cards.length)]);
-    let diff = Math.abs(power(deck) - T);
+    // 上限超過は「勝てないボス」なので目標との差を無限大扱いにして弾く
+    const score = d => { const p = power(d); return p > P_CAP ? Infinity : Math.abs(p - T); };
+    let diff = score(deck);
     for (let pass = 0; pass < 25 && diff > T * 0.015; pass++) {
       let improved = false;
-      // 交換候補: 地元カード全部 + 全国からのサンプル（高目標ほど全国の精鋭が必要）
-      const pool = [...local, ...[...cards].sort(() => rand() - .5).slice(0, 350)];
+      // 交換候補: 地元カード全部 + 多タグ精鋭 + 全国からのサンプル（高目標ほど全国の精鋭が必要）
+      const pool = [...local, ...ELITES, ...[...cards].sort(() => rand() - .5).slice(0, 350)];
       for (let i = 0; i < DECK_SIZE; i++) {
         for (const cand of pool) {
           if (deck.includes(cand)) continue;
           const saved = deck[i];
           deck[i] = cand;
-          const d = Math.abs(power(deck) - T);
+          const d = score(deck);
           if (d < diff) { diff = d; improved = true; } else deck[i] = saved;
         }
       }

@@ -876,14 +876,23 @@ function startBattle(opts = {}) {
   renderShowdownRow('#player-deck-row', pDeck);
 
   // 演出シーケンス: シナジー発動(CPU→自分) → 戦闘力カウントアップ → 勝敗
+  // シナジーが多い時に全部見せると1分超えになるため、
+  // 5個以上は「◯連鎖」まとめバナー＋倍率上位3件のみに圧縮する（倍率の低い順で盛り上げる）
+  const bannersFor = (analysis) => {
+    const act = [...analysis.active].sort((a, b) => a.multiplier - b.multiplier);
+    return act.length <= 4 ? { chain: 0, picks: act } : { chain: act.length, picks: act.slice(-3) };
+  };
   let t = 900;
-  for (const a of cA.active) {
-    schedule(() => fireSynergy('cpu', a), t);
-    t += 1250;
-  }
-  for (const a of pA.active) {
-    schedule(() => fireSynergy('player', a), t);
-    t += 1250;
+  for (const side of ['cpu', 'player']) {
+    const { chain, picks } = bannersFor(side === 'cpu' ? cA : pA);
+    if (chain) {
+      schedule(() => fireChain(side, chain), t);
+      t += 1250;
+    }
+    for (const a of picks) {
+      schedule(() => fireSynergy(side, a), t);
+      t += 1250;
+    }
   }
   schedule(() => {
     $('#syn-banner').innerHTML = '';
@@ -904,6 +913,25 @@ function renderShowdownRow(sel, deck) {
     `<div class="showdown-card" data-tags="${c.tags.join('|')}" style="animation-delay:${i * 0.1}s">
       ${cardHTML(c, true)}
     </div>`).join('');
+}
+
+// シナジー多重発動のまとめ演出: 「◯連鎖」バナー＋その側の全カードが一斉に浮き上がる
+function fireChain(side, n) {
+  const banner = $('#syn-banner');
+  banner.innerHTML = `
+    <div class="syn-banner-inner ${side}-b">
+      ${icon('sparkles')}
+      <span class="syn-b-name">シナジー${n}連鎖</span>
+      <span class="syn-b-sub">${side === 'player' ? 'あなた' : 'CPU'}／一斉発動</span>
+    </div>`;
+  document.querySelectorAll('.showdown-card.syn-now').forEach(el => el.classList.remove('syn-now'));
+  const row = side === 'player' ? '#player-deck-row' : '#cpu-deck-row';
+  document.querySelectorAll(`${row} .showdown-card`).forEach(el => {
+    el.classList.add(side === 'player' ? 'glow-p' : 'glow-c');
+    void el.offsetWidth;
+    el.classList.add('syn-now');
+  });
+  flashScreen(side === 'player' ? 'gold' : 'purple', 220);
 }
 
 // シナジー発動演出: バナー表示＋発動した「組」のカードが浮き上がって強調される
