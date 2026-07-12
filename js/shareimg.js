@@ -43,6 +43,9 @@ export async function buildShareImage(spec) {
       ctx.font = '700 26px "Yu Mincho", serif';
       ctx.fillText('VS', W / 2, 327);
       await drawRow(ctx, rows[1], 346, 136, 190);
+    } else if (rows[0].cards.length === 1) {
+      // 単体カードの自慢用: 1枚を大きく見せる
+      await drawRow(ctx, rows[0], 150, 300, 420);
     } else {
       await drawRow(ctx, rows[0], 168, 196, 274);
     }

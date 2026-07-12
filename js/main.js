@@ -2,7 +2,7 @@ import { loadAll } from './csv.js';
 import * as S from './state.js';
 import { drawPack, rarityIndex, hasSSRorAbove, isGuaranteedPack, SR_GUARANTEE_EVERY, RARITY_ORDER } from './gacha.js';
 import * as B from './battle.js';
-import { initAds, showRewarded, showInterstitial } from './ads.js';
+import { initAds, initBanners, showRewarded, showInterstitial } from './ads.js';
 import { share, shareUrl, initShare } from './share.js';
 import { buildShareImage } from './shareimg.js';
 
@@ -56,6 +56,7 @@ async function init() {
   }
 
   initAds();
+  initBanners();
   initShare();
 
   if (!S.getState().homePref) {
@@ -152,20 +153,30 @@ function setupTabs() {
 // ---------- スタミナ ----------
 function renderStamina() {
   const st = S.getStamina();
+  // ピップは自然回復ぶん（10個）だけ表示し、広告で上乗せしたぶんは「+N」で横に出す
+  const inBar = Math.min(st, S.STAMINA_MAX);
+  const extra = st - inBar;
   const pips = $('#stamina-pips');
   pips.innerHTML = icon('bolt') +
-    `<span class="pipbar">${'<i class="pip on"></i>'.repeat(st)}${'<i class="pip"></i>'.repeat(S.STAMINA_MAX - st)}</span>`;
+    `<span class="pipbar">${'<i class="pip on"></i>'.repeat(inBar)}${'<i class="pip"></i>'.repeat(S.STAMINA_MAX - inBar)}</span>` +
+    (extra > 0 ? `<span class="pip-extra">+${extra}</span>` : '');
   const ms = S.msToNextStamina();
   $('#stamina-timer').innerHTML = ms == null ? 'MAX' : `${icon('clock')}次回復 ${fmtMs(ms)}`;
 
-  const openBtn = $('#open-pack-btn');
-  openBtn.disabled = st < S.PACK_COST;
+  $('#open-pack-btn').disabled = st < S.PACK_COST;
 
   const adBtn = $('#ad-btn');
-  adBtn.disabled = st >= S.STAMINA_MAX;
-  adBtn.innerHTML = st >= S.STAMINA_MAX
-    ? `${icon('play')}スタミナ満タン！`
-    : `${icon('play')}広告を見てスタミナ全回復`;
+  const canAd = S.canWatchAd();
+  adBtn.disabled = !canAd;
+  adBtn.innerHTML = canAd
+    ? `${icon('play')}広告を見てスタミナ +${S.AD_STAMINA}`
+    : `${icon('play')}スタミナが上限（${S.STAMINA_CAP}）です`;
+  updateBattleAdBtn();
+}
+
+// 対戦結果画面の広告ボタン。スタミナ上限に達している時だけ隠す
+function updateBattleAdBtn() {
+  $('#battle-ad-btn').classList.toggle('hidden', !S.canWatchAd());
 }
 
 function fmtMs(ms) {
@@ -193,6 +204,13 @@ function setupPackTab() {
   $('#close-overlay-btn').onclick = closeOverlay;
   $('#ad-btn').onclick = showAd;
   $('#result-ad-btn').onclick = showAd;
+  // 初回シェアボーナスのCTA（未受け取りの間だけ出る）
+  $('#share-bonus-btn').onclick = () => {
+    const owned = CARDS.filter(c => S.ownedCount(c.id) > 0).length;
+    shareAndReward(
+      `「地域カードバトル」で地元${S.getState().homePref}のカードを集めてる！ コレクション ${owned}/${CARDS.length}枚`
+    );
+  };
   // 開封結果のシェア: 5枚並びの画像＋いちばんレアな1枚の自慢文
   $('#share-pull-btn').onclick = async () => {
     if (!currentPack) return;
@@ -202,7 +220,7 @@ function setupPackTab() {
       sub: `${best.rarity}『${best.name}』を引き当てた！`,
       rows: [{ cards: currentPack.map(shareCardEntry) }],
     });
-    share(`「地域カードバトル」で ${best.rarity}『${best.name}』を引き当てた！`, { image });
+    shareAndReward(`「地域カードバトル」で ${best.rarity}『${best.name}』を引き当てた！`, { image });
   };
   $('#flip-all-btn').onclick = flipAll;
   $('#to-result-btn').onclick = showResult;
@@ -231,6 +249,11 @@ function renderPackInfo() {
   const tBtn = $('#ticket-btn');
   tBtn.classList.toggle('hidden', tickets <= 0);
   if (tickets > 0) tBtn.innerHTML = `チケットで開ける <span class="cost">残り${tickets}枚</span>`;
+
+  const sBtn = $('#share-bonus-btn');
+  const shareable = S.shareBonusAvailable();
+  sBtn.classList.toggle('hidden', !shareable);
+  if (shareable) sBtn.innerHTML = `シェアしてチケット${S.SHARE_BONUS_TICKETS}枚もらう <span class="cost">初回のみ</span>`;
 
   const st = S.getState();
   const g = nextGuarantee();
@@ -410,6 +433,35 @@ function closeOverlay() {
   showInterstitial('pack-close');   // 区切りの全画面広告（クールダウン付き・未設定なら無音）
 }
 
+// ---------- シェア ----------
+// どのシェアボタンから共有しても初回ボーナスの対象。
+// 実際に投稿されたかは検証できない（intent URLは結果を返さない）ので、
+// ボーナスは一度きりに固定してある＝連打しても増えない
+async function shareAndReward(text, opts = {}) {
+  const shared = await share(text, opts);
+  if (!shared) return;
+  const gained = S.grantFirstShareBonus();
+  if (gained > 0) {
+    toast(`${icon('gift')}初回シェアありがとう！ パックチケット <b>+${gained}枚</b>`);
+    renderPackInfo();
+    renderBattleTab();
+  }
+}
+
+let toastTimer = null;
+function toast(html) {
+  const el = $('#toast');
+  el.innerHTML = html;
+  el.classList.remove('hidden');
+  void el.offsetWidth;   // 連続表示でもスライドインを再生させる
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    el.classList.remove('show');
+    setTimeout(() => el.classList.add('hidden'), 300);
+  }, 3200);
+}
+
 // ---------- 広告 ----------
 // 本物のリワード広告（ads.jsのAD_CLIENT設定時）を優先し、
 // 未設定・読み込み失敗時は開発用ダミーモーダルにフォールバックする
@@ -418,10 +470,11 @@ function showAd() {
   if (!usedRealAd) showDummyAd();
 }
 
-// 広告視聴の報酬: スタミナ全回復
+// 広告視聴の報酬: スタミナ +AD_STAMINA（上限STAMINA_CAPまで貯まる）
 function grantAdReward() {
   S.watchAd();
   renderStamina();
+  toast(`${icon('bolt')}スタミナ <b>+${S.AD_STAMINA}</b>`);
   // 開封結果画面から広告を見た場合は、その場で「もう1パック」に戻す
   if (!$('#pack-overlay').classList.contains('hidden') &&
       !$('#stage-result').classList.contains('hidden')) {
@@ -505,9 +558,26 @@ function showCardModal(card) {
     <div class="viewer-meta">
       <div class="modal-meta">所持: ${owned}枚</div>
       ${credit}
-      <button class="sub-btn" id="modal-close">閉じる</button>
+      <div class="viewer-btns">
+        ${owned > 0 ? `<button class="sub-btn" id="card-share-btn">シェア</button>` : ''}
+        <button class="sub-btn" id="modal-close">閉じる</button>
+      </div>
     </div>`;
   modal.classList.remove('hidden');
+
+  // 単体カードの自慢シェア（所持カードのみ）
+  const shareBtn = $('#card-share-btn');
+  if (shareBtn) {
+    shareBtn.onclick = async () => {
+      const place = card.type === 'pref' ? regionOf(card.prefecture) : card.prefecture;
+      const image = await buildShareImage({
+        title: `${card.rarity}『${card.name}』`,
+        sub: `${card.reading} ─ ${place}`,
+        rows: [{ cards: [shareCardEntry(card)] }],
+      });
+      shareAndReward(`「地域カードバトル」で ${card.rarity}『${card.name}』をゲット！ 攻${fmt(card.attack)}／防${fmt(card.defense)}`, { image });
+    };
+  }
 
   // マウス／指なぞり追従の3Dチルト＋グレア（実物のキラカードを傾ける感覚）
   // Pointer Eventsでマウスとタッチを共通処理。タッチはpointerdown後にmoveが飛んでくる
@@ -726,7 +796,8 @@ function setupBattleTab() {
       rows: [{ cards: cards.map(shareCardEntry) }],
       footer: `デッキコード: ${code}`,
     });
-    share(`「地域カードバトル」戦闘力${fmt(power)}のデッキで待ってるぞ！ コード: ${code}`, { url: shareUrl({ vs: code }), image });
+    shareAndReward(`「地域カードバトル」戦闘力${fmt(power)}のデッキで待ってるぞ！ コード: ${code}`,
+      { url: shareUrl({ vs: code }), image });
   };
   $('#friend-battle-btn').onclick = () => {
     const ids = $('#friend-code').value.trim().split(/[-,\s]+/).filter(Boolean);
@@ -741,6 +812,8 @@ function setupBattleTab() {
   $('#battle-skip-btn').onclick = () => {
     if (!pendingResult) return;
     clearBattleTimers();
+    $('#battle-fx').innerHTML = '';
+    $('#vs-intro').classList.add('hidden');
     showBattleResult();
   };
   $('#battle-close-btn').onclick = () => {
@@ -750,6 +823,7 @@ function setupBattleTab() {
     showInterstitial('battle-close');
   };
   $('#battle-again-btn').onclick = () => startBattle(lastBattleOpts);
+  $('#battle-ad-btn').onclick = showAd;
 }
 
 // ---------- 全国制覇（47都道府県の主） ----------
@@ -959,14 +1033,16 @@ function startBattle(opts = {}) {
   const cA = B.analyzeDeck(cDeck, SYNERGIES);
   const res = B.resolveBattle(pA, cA);
   pendingResult = { res, pA, cA, opts, recorded: false };
-  document.querySelector('.battle-board .side-tag:not(.you)').textContent = opts.label || 'CPU';
-  document.querySelector('.power-box.cpu .power-side').textContent = opts.label || 'CPU';
+  const oppName = opts.label || 'CPU';
+  document.querySelector('.battle-board .side-tag:not(.you)').textContent = oppName;
+  document.querySelector('.power-box.cpu .power-side').textContent = oppName;
 
   clearBattleTimers();
   $('#battle-overlay').classList.remove('hidden');
   $('#stage-battle').classList.remove('hidden');
   $('#stage-battle-result').classList.add('hidden');
   $('#syn-banner').innerHTML = '';
+  $('#battle-fx').innerHTML = '';
   $('#cpu-power').textContent = '???';
   $('#player-power').textContent = '???';
   $('#cpu-power-detail').textContent = '';
@@ -974,18 +1050,32 @@ function startBattle(opts = {}) {
   document.querySelectorAll('.power-box').forEach(b => b.classList.remove('win'));
   document.querySelectorAll('.showdown-row').forEach(r => r.classList.remove('lose'));
 
-  // デッキ展開（CPU上段・自分下段）
+  // デッキ展開（CPU上段・自分下段）。VS演出の背後でカードが並んでいく
   renderShowdownRow('#cpu-deck-row', cDeck);
   renderShowdownRow('#player-deck-row', pDeck);
 
-  // 演出シーケンス: シナジー発動(CPU→自分) → 戦闘力カウントアップ → 勝敗
+  // VS入場演出: 両者の名前が左右から飛び込んで激突する
+  const intro = $('#vs-intro');
+  $('#vs-intro-cpu').textContent = oppName;
+  intro.classList.add('hidden');
+  void intro.offsetWidth;   // displayを一度切ってアニメーションを毎回再生する
+  intro.classList.remove('hidden');
+  schedule(() => {
+    flashScreen('white', 110);
+    boardShake(true);
+    const c = fxPoint(intro);
+    spawnRing(c.x, c.y);
+  }, 480);
+  schedule(() => intro.classList.add('hidden'), 1450);
+
+  // 演出シーケンス: VS → シナジー発動(CPU→自分) → 攻撃の応酬 → 防御ボーナス → 勝敗
   // シナジーが多い時に全部見せると1分超えになるため、
   // 5個以上は「◯連鎖」まとめバナー＋倍率上位3件のみに圧縮する（倍率の低い順で盛り上げる）
   const bannersFor = (analysis) => {
     const act = [...analysis.active].sort((a, b) => a.multiplier - b.multiplier);
     return act.length <= 4 ? { chain: 0, picks: act } : { chain: act.length, picks: act.slice(-3) };
   };
-  let t = 900;
+  let t = 1650;
   for (const side of ['cpu', 'player']) {
     const { chain, picks } = bannersFor(side === 'cpu' ? cA : pA);
     if (chain) {
@@ -997,18 +1087,84 @@ function startBattle(opts = {}) {
       t += 1250;
     }
   }
+
+  // 攻撃の応酬: 両デッキが正面のカードへ交互に切りかかり、戦闘力が1撃ずつ積み上がる
   schedule(() => {
     $('#syn-banner').innerHTML = '';
     document.querySelectorAll('.showdown-card.syn-now').forEach(el => el.classList.remove('syn-now'));
-    countUp('#cpu-power', cA.total, 900);
-    countUp('#player-power', pA.total, 900);
-    $('#cpu-power-detail').textContent = `攻撃 ${fmt(cA.atk)} ＋ 防御 ${fmt(cA.def)}`;
-    $('#player-power-detail').textContent = `攻撃 ${fmt(pA.atk)} ＋ 防御 ${fmt(pA.def)}`;
+    $('#cpu-power').textContent = '0';
+    $('#player-power').textContent = '0';
   }, t);
-  t += 1500;
+  t += 250;
+  const maxHit = Math.max(1, ...pA.cards.map(x => x.power), ...cA.cards.map(x => x.power));
+  let pSum = 0, cSum = 0;
+  for (let i = 0; i < B.DECK_SIZE; i++) {
+    for (const side of ['c', 'p']) {
+      const entry = (side === 'p' ? pA : cA).cards[i];
+      if (!entry) continue;
+      const from = side === 'p' ? pSum : cSum;
+      const to = from + entry.power;
+      if (side === 'p') pSum = to; else cSum = to;
+      schedule(() => performAttack(side, i, entry, from, to, entry.power / maxHit), t);
+      t += 420;
+    }
+  }
+  t += 200;
+  schedule(() => {
+    addDefenseBonus('c', cSum, cA);
+    addDefenseBonus('p', pSum, pA);
+  }, t);
+  t += 1100;
   schedule(() => revealWinner(res), t);
-  t += 1400;
+  t += 1700;
   schedule(() => showBattleResult(), t);
+}
+
+/**
+ * 1枚が相手デッキの正面のカードへ切りかかる攻撃演出。
+ * weight=デッキ内の威力比(0〜1)。エース級(0.5以上)は大技扱いで斬撃2連＋画面フラッシュが付く。
+ */
+function performAttack(side, idx, entry, from, to, weight) {
+  const heavy = weight >= 0.5;
+  const atkRow = side === 'p' ? '#player-deck-row' : '#cpu-deck-row';
+  const defRow = side === 'p' ? '#cpu-deck-row' : '#player-deck-row';
+  const attacker = document.querySelectorAll(`${atkRow} .showdown-card`)[idx];
+  const targets = document.querySelectorAll(`${defRow} .showdown-card`);
+  const target = targets[idx] || targets[0];
+  if (!attacker || !target) return;
+  attacker.style.animationDelay = '0s';   // デッキ展開時のディレイが残っていると突進が遅れる
+  attacker.classList.remove('lunge-p', 'lunge-c');
+  void attacker.offsetWidth;
+  attacker.classList.add(side === 'p' ? 'lunge-p' : 'lunge-c');
+  // 踏み込みがぶつかる瞬間に合わせてヒット演出を出す
+  schedule(() => {
+    const { x, y } = fxPoint(target);
+    spawnSlash(x, y, side, heavy);
+    spawnSparks(x, y, side, heavy ? 16 : 9);
+    target.classList.remove('hit');
+    void target.offsetWidth;
+    target.classList.add('hit');
+    damagePop(x, y, entry, side, heavy);
+    boardShake(heavy);
+    if (heavy) flashScreen(side === 'p' ? 'gold' : 'purple', 120);
+    tickPower(side === 'p' ? '#player-power' : '#cpu-power', from, to, 280);
+  }, 150);
+}
+
+/** 攻撃応酬の締め: 防御ボーナスを積んで最終戦闘力に到達させる */
+function addDefenseBonus(side, atkSum, analysis) {
+  const box = document.querySelector(side === 'p' ? '.power-box.player' : '.power-box.cpu');
+  const { x, y } = fxPoint(box);
+  const el = document.createElement('div');
+  el.className = `fx-dmg ${side === 'p' ? 'fx-gold' : 'fx-purple'}`;
+  el.style.left = `${x}px`;
+  el.style.top = `${y - 34}px`;
+  el.textContent = `防御 +${fmt(analysis.def)}`;
+  $('#battle-fx').appendChild(el);
+  setTimeout(() => el.remove(), 1100);
+  tickPower(side === 'p' ? '#player-power' : '#cpu-power', atkSum, analysis.total, 600);
+  $(side === 'p' ? '#player-power-detail' : '#cpu-power-detail').textContent =
+    `攻撃 ${fmt(analysis.atk)} ＋ 防御 ${fmt(analysis.def)}`;
 }
 
 function renderShowdownRow(sel, deck) {
@@ -1035,6 +1191,9 @@ function fireChain(side, n) {
     el.classList.add('syn-now');
   });
   flashScreen(side === 'player' ? 'gold' : 'purple', 220);
+  const c = fxPoint(banner);
+  spawnRing(c.x, c.y);
+  boardShake(false);
 }
 
 // シナジー発動演出: バナー表示＋発動した「組」のカードが浮き上がって強調される
@@ -1058,31 +1217,134 @@ function fireSynergy(side, syn) {
     }
   });
   flashScreen(side === 'player' ? 'gold' : 'purple', 220);
+  const c = fxPoint(banner);
+  spawnRing(c.x, c.y);
+  boardShake(false);
 }
 
-function countUp(sel, to, ms) {
+/** 戦闘力表示を from→to にカウントし、跳ねさせる */
+function tickPower(sel, from, to, ms) {
   const el = $(sel);
+  el.classList.remove('bump');
+  void el.offsetWidth;
+  el.classList.add('bump');
   const start = performance.now();
   const tick = (now) => {
     const k = Math.min(1, (now - start) / ms);
-    el.textContent = fmt(Math.round(to * (1 - Math.pow(1 - k, 3))));
+    el.textContent = fmt(Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))));
     if (k < 1) requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
 }
 
 function revealWinner(res) {
+  const c = fxPoint($('#vs-mark'));
+  spawnRing(c.x, c.y);
+  boardShake(true);
   if (res.winner === 'p') {
     $('.power-box.player').classList.add('win');
-    $('#cpu-deck-row').classList.add('lose');
+    blowAway('#cpu-deck-row', -1);
+    document.querySelectorAll('#player-deck-row .showdown-card').forEach((el, i) => {
+      el.style.animationDelay = `${i * 0.07}s`;
+      el.classList.add('victory');
+    });
+    spawnSparks(c.x, c.y, 'p', 18);
     flashScreen('rainbow', 500);
     document.body.classList.add('shake');
     setTimeout(() => document.body.classList.remove('shake'), 600);
   } else if (res.winner === 'c') {
     $('.power-box.cpu').classList.add('win');
-    $('#player-deck-row').classList.add('lose');
+    blowAway('#player-deck-row', 1);
+    spawnSparks(c.x, c.y, 'c', 18);
     flashScreen('purple', 500);
   }
+}
+
+/** 敗者のデッキが吹き飛ばされて散る。dir=-1で上（CPU側の奥）、1で下（自分側の手前）へ */
+function blowAway(rowSel, dir) {
+  $(rowSel).classList.add('lose');
+  document.querySelectorAll(`${rowSel} .showdown-card`).forEach((el, i) => {
+    el.style.setProperty('--fly-x', `${(Math.random() - 0.5) * 220}px`);
+    el.style.setProperty('--fly-y', `${dir * (70 + Math.random() * 90)}px`);
+    el.style.setProperty('--fly-r', `${(Math.random() - 0.5) * 50}deg`);
+    el.style.animationDelay = `${i * 0.05}s`;
+    el.classList.add('blown');
+  });
+}
+
+// ---------- 戦闘エフェクト（#battle-fx 内に使い捨てDOMを生成する） ----------
+/** 要素の中心座標をエフェクト層基準で返す */
+function fxPoint(el) {
+  const fx = $('#battle-fx').getBoundingClientRect();
+  const r = el.getBoundingClientRect();
+  return { x: r.left + r.width / 2 - fx.left, y: r.top + r.height / 2 - fx.top };
+}
+
+/** 火花: n個の粒がランダム方向へ飛び散る */
+function spawnSparks(x, y, side, n) {
+  const wrap = document.createElement('div');
+  wrap.className = `fx-sparks ${side === 'p' ? 'fx-gold' : 'fx-purple'}`;
+  wrap.style.left = `${x}px`;
+  wrap.style.top = `${y}px`;
+  for (let i = 0; i < n; i++) {
+    const s = document.createElement('i');
+    const ang = Math.random() * Math.PI * 2;
+    const dist = 34 + Math.random() * 66;
+    s.style.setProperty('--dx', `${Math.cos(ang) * dist}px`);
+    s.style.setProperty('--dy', `${Math.sin(ang) * dist}px`);
+    s.style.animationDelay = `${Math.random() * 70}ms`;
+    wrap.appendChild(s);
+  }
+  $('#battle-fx').appendChild(wrap);
+  setTimeout(() => wrap.remove(), 900);
+}
+
+/** 斬撃の軌跡。double=trueで交差する2連斬り */
+function spawnSlash(x, y, side, double) {
+  const mk = (rot) => {
+    const el = document.createElement('div');
+    el.className = `fx-slash ${side === 'p' ? 'fx-gold' : 'fx-purple'}`;
+    el.style.left = `${x}px`;
+    el.style.top = `${y}px`;
+    el.style.setProperty('--rot', `${rot}deg`);
+    $('#battle-fx').appendChild(el);
+    setTimeout(() => el.remove(), 600);
+  };
+  mk(-30 - Math.random() * 25);
+  if (double) setTimeout(() => mk(25 + Math.random() * 25), 90);
+}
+
+/** 衝撃波リング */
+function spawnRing(x, y) {
+  const el = document.createElement('div');
+  el.className = 'fx-ring';
+  el.style.left = `${x}px`;
+  el.style.top = `${y}px`;
+  $('#battle-fx').appendChild(el);
+  setTimeout(() => el.remove(), 700);
+}
+
+/** ダメージ数字のポップ。シナジー倍率が乗ったカードは倍率も添える */
+function damagePop(x, y, entry, side, heavy) {
+  // 端のカードでも数字が盤面から見切れないように内側へ寄せる
+  const half = heavy ? 100 : 70;
+  x = Math.min(Math.max(x, half), $('#battle-fx').clientWidth - half);
+  const el = document.createElement('div');
+  el.className = `fx-dmg ${side === 'p' ? 'fx-gold' : 'fx-purple'}${heavy ? ' heavy' : ''}`;
+  el.style.left = `${x}px`;
+  el.style.top = `${y - 16}px`;
+  el.innerHTML = entry.mult > 1 ? `${fmt(entry.power)}<i>×${entry.mult}</i>` : fmt(entry.power);
+  $('#battle-fx').appendChild(el);
+  setTimeout(() => el.remove(), 1100);
+}
+
+/** 盤面を揺らす（heavy=大技・激突時の強い揺れ） */
+function boardShake(heavy) {
+  const b = document.querySelector('.battle-board');
+  if (!b) return;
+  b.classList.remove('shake-sm', 'shake-lg');
+  void b.offsetWidth;
+  b.classList.add(heavy ? 'shake-lg' : 'shake-sm');
 }
 
 function showBattleResult() {
@@ -1090,8 +1352,8 @@ function showBattleResult() {
   pendingResult.recorded = true;
   const { res, pA, cA, opts } = pendingResult;
   const result = res.winner === 'p' ? 'win' : res.winner === 'c' ? 'lose' : 'draw';
-  const { streak, gained } = S.recordBattle(result, B.rewardForStreak);
-  // ボス初撃破の報酬
+  const streak = S.recordBattle(result);
+  // ボス初撃破の報酬（チケットが手に入るのは全国制覇のここだけ。通常CPU戦・フレンド戦は0枚）
   let bossLine = '';
   if (opts?.bossPref && result === 'win') {
     const bossGained = S.recordBossDefeat(opts.bossPref);   // null=撃破済み / 0以上=初撃破の獲得チケット
@@ -1115,14 +1377,17 @@ function showBattleResult() {
   title.className = `result-${result}`;
   if (result === 'win') flashScreen('gold', 700);
 
+  // 通常CPU戦・フレンド戦は報酬なし。チケットが欲しいなら全国制覇へ、という導線を出す
+  const nextBossName = BOSSES.find(b => !new Set(st.defeatedBosses).has(b.pref))?.name;
   $('#battle-result-body').innerHTML = `
     <p class="result-sub">${result !== 'draw' ? `${res.tier}！ ` : ''}戦闘力 あなた <b>${fmt(pA.total)}</b> − <b>${fmt(cA.total)}</b> ${oppName}</p>
     <div class="result-streak">
       ${bossLine}
       <div>連勝: <b>${streak}</b>（最高 ${st.bestStreak}）</div>
-      ${gained > 0 ? `<div class="reward-line">${icon('gift')}連勝ボーナス！ パックチケット <b>+${gained}</b>枚</div>` : ''}
-      ${result === 'win' && gained === 0 ? `<div class="next-reward">次のボーナスまであと${nextRewardIn(streak)}勝</div>` : ''}
+      ${!opts?.bossPref && nextBossName
+        ? `<div class="next-reward">チケットは全国制覇でもらえる — 次は${nextBossName}</div>` : ''}
     </div>`;
+  updateBattleAdBtn();
 
   // 対戦結果のシェア文面（ボス撃破 > 連勝 > 通常勝利 > 敗北 の順で自慢度が高いものを出す）
   const shareText = (() => {
@@ -1145,7 +1410,7 @@ function showBattleResult() {
         { label: 'あなた', labelColor: '#f2c14e', dim: result === 'lose', cards: pA.cards.map(x => shareCardEntry(x.card)) },
       ],
     });
-    share(shareText, { image });
+    shareAndReward(shareText, { image });
   };
   // 結果画面の主ボタンを文脈に合わせる:
   // ボス勝利→次の主へ / ボス敗北→ガチャに誘導 / それ以外→もう一戦
@@ -1177,13 +1442,6 @@ function showBattleResult() {
 
   $('#stage-battle').classList.add('hidden');
   $('#stage-battle-result').classList.remove('hidden');
-}
-
-function nextRewardIn(streak) {
-  for (let s = streak + 1; s <= streak + 10; s++) {
-    if (B.rewardForStreak(s) > 0) return s - streak;
-  }
-  return '?';
 }
 
 // ---------- 演出 ----------

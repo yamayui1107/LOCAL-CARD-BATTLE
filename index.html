@@ -57,6 +57,9 @@
       </div>
     </header>
 
+    <!-- 常設バナー広告（ads.jsのAD_SLOT_BANNER設定時のみ描画される） -->
+    <div class="ad-banner hidden" data-ad-pos="top"></div>
+
     <nav id="tabs">
       <div class="tab-group">
         <button class="tab-btn active" data-tab="pack"><svg class="ic"><use href="#i-gift"/></svg>パック</button>
@@ -86,6 +89,7 @@
           <button id="open-pack-btn" class="big-btn">パックを開ける
             <span class="cost"><svg class="ic"><use href="#i-bolt"/></svg>2</span></button>
           <button id="ticket-btn" class="big-btn ticket hidden"></button>
+          <button id="share-bonus-btn" class="big-btn share-bonus hidden"></button>
           <button id="ad-btn" class="ad-btn"></button>
           <p class="pack-hint" id="pack-hint"></p>
         </div>
@@ -174,6 +178,7 @@
     </main>
 
     <footer id="footer">
+      <div class="ad-banner hidden" data-ad-pos="bottom"></div>
       <nav class="footer-links">
         <a href="about.html">このゲームについて・遊び方</a>
         <a href="credits.html">画像クレジット</a>
@@ -219,7 +224,7 @@
         <button id="open-again-btn" class="big-btn">もう1パック
           <span class="cost"><svg class="ic"><use href="#i-bolt"/></svg>2</span></button>
         <button id="result-ad-btn" class="big-btn ad-recover hidden">
-          <svg class="ic"><use href="#i-play"/></svg>広告を見てスタミナ全回復</button>
+          <svg class="ic"><use href="#i-play"/></svg>広告を見てスタミナ回復</button>
         <button id="share-pull-btn" class="sub-btn small">結果をシェア</button>
         <button id="close-overlay-btn" class="link-btn close-link">閉じる</button>
       </div>
@@ -230,6 +235,12 @@
   <div id="battle-overlay" class="overlay hidden">
     <div id="stage-battle" class="stage hidden">
       <div class="battle-board">
+        <div id="battle-fx"></div>
+        <div id="vs-intro" class="hidden">
+          <div class="vs-intro-side cpu" id="vs-intro-cpu">CPU</div>
+          <div class="vs-intro-mark">VS</div>
+          <div class="vs-intro-side you">あなた</div>
+        </div>
         <div class="side-tag">CPU</div>
         <div class="showdown-row" id="cpu-deck-row"></div>
         <div id="showdown-center">
@@ -258,6 +269,8 @@
       <div id="battle-result-body"></div>
       <div class="stage-actions">
         <button id="battle-again-btn" class="big-btn">もう一戦</button>
+        <button id="battle-ad-btn" class="big-btn ad-recover hidden">
+          <svg class="ic"><use href="#i-play"/></svg>広告を見てスタミナ回復</button>
         <button id="battle-share-btn" class="sub-btn">シェア</button>
         <button id="battle-close-btn" class="sub-btn">閉じる</button>
       </div>
@@ -297,6 +310,9 @@
 
   <!-- 演出用フラッシュ -->
   <div id="flash"></div>
+
+  <!-- 報酬などの通知（オーバーレイより手前に出す） -->
+  <div id="toast" class="toast hidden"></div>
 </div>
 
 <script type="module" src="js/main.js"></script>

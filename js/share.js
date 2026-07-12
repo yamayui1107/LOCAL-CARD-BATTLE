@@ -12,6 +12,10 @@ export function shareUrl(params = {}) {
 /**
  * テキスト（＋あれば画像）をSNSに共有する。
  * image: PNGのBlob（shareimg.jsで生成）。共有先が画像非対応ならテキストのみで送る
+ *
+ * 戻り値: 共有アクションが成立したら true / キャンセル・シートを閉じただけなら false。
+ * 実際に投稿されたかまでは（intent URLもWeb Share APIも結果を返さないため）検証できない。
+ * 初回シェアボーナスの付与判定に使う値なので、報酬は必ず「一度きり」に留めること
  */
 export async function share(text, { url = shareUrl(), image = null } = {}) {
   const full = `${text} #${HASHTAG}`;
@@ -22,9 +26,9 @@ export async function share(text, { url = shareUrl(), image = null } = {}) {
     if (navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file], text: full, url });
-        return;
+        return true;
       } catch (e) {
-        if (e.name === 'AbortError') return;   // ユーザーがキャンセルしただけ
+        if (e.name === 'AbortError') return false;   // ユーザーがキャンセルしただけ
       }
     }
   }
@@ -32,16 +36,32 @@ export async function share(text, { url = shareUrl(), image = null } = {}) {
   if (navigator.share) {
     try {
       await navigator.share({ text: full, url });
-      return;
+      return true;
     } catch (e) {
-      if (e.name === 'AbortError') return;
+      if (e.name === 'AbortError') return false;
     }
   }
-  openShareSheet(full, url, image);
+  return openShareSheet(full, url, image);
 }
 
 // ---- フォールバック用の簡易シート ----
 let lastObjectUrl = null;
+let settleSheet = null;   // 開いているシートの決着関数（未オープン時はnull）
+
+// 共有先に飛んだ／コピーした時点で成立とみなす。
+// 画像を保存してからXに貼る導線があるので、成立してもシートは開いたままにする
+function markShared() {
+  const settle = settleSheet;
+  settleSheet = null;
+  settle?.(true);
+}
+
+function closeSheet() {
+  document.querySelector('#share-modal').classList.add('hidden');
+  const settle = settleSheet;
+  settleSheet = null;
+  settle?.(false);
+}
 
 function openShareSheet(text, url, image) {
   const modal = document.querySelector('#share-modal');
@@ -60,23 +80,30 @@ function openShareSheet(text, url, image) {
   save.classList.toggle('hidden', !image);
 
   modal.querySelector('.share-preview').textContent = `${text}\n${url}`;
-  modal.querySelector('#share-x').href =
-    `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`;
-  modal.querySelector('#share-line').href =
-    `https://line.me/R/share?text=${enc(`${text}\n${url}`)}`;
+  const x = modal.querySelector('#share-x');
+  x.href = `https://twitter.com/intent/tweet?text=${enc(text)}&url=${enc(url)}`;
+  x.onclick = markShared;
+  const line = modal.querySelector('#share-line');
+  line.href = `https://line.me/R/share?text=${enc(`${text}\n${url}`)}`;
+  line.onclick = markShared;
   const copyBtn = modal.querySelector('#share-copy');
   copyBtn.textContent = 'コピー';
   copyBtn.onclick = () => {
     navigator.clipboard?.writeText(`${text}\n${url}`);
     copyBtn.textContent = 'コピーした！';
     setTimeout(() => { copyBtn.textContent = 'コピー'; }, 1200);
+    markShared();
   };
+
+  // 前のシートが決着せず残っていたらキャンセル扱いで閉じる
+  settleSheet?.(false);
   modal.classList.remove('hidden');
+  return new Promise((resolve) => { settleSheet = resolve; });
 }
 
 /** 起動時に一度呼ぶ: シートの閉じる動作を配線する */
 export function initShare() {
   const modal = document.querySelector('#share-modal');
-  modal.querySelector('#share-close').onclick = () => modal.classList.add('hidden');
-  modal.onclick = (e) => { if (e.target === modal) modal.classList.add('hidden'); };
+  modal.querySelector('#share-close').onclick = closeSheet;
+  modal.onclick = (e) => { if (e.target === modal) closeSheet(); };
 }

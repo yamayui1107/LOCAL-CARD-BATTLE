@@ -131,11 +131,3 @@ function sample(arr, n, rand) {
   }
   return out;
 }
-
-/** 連勝数に応じたチケット報酬 */
-export function rewardForStreak(streak) {
-  if (streak === 3) return 1;
-  if (streak === 5) return 2;
-  if (streak >= 10 && streak % 10 === 0) return 3;
-  return 0;
-}

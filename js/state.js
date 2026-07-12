@@ -1,11 +1,14 @@
 // セーブデータ管理（localStorage）
 const KEY = 'jimoto-card-v1';
 
-export const STAMINA_MAX = 10;
+export const STAMINA_MAX = 10;               // 自然回復の上限
+export const STAMINA_CAP = 30;               // 保有上限。広告視聴ぶんはここまで上限を超えて貯められる
+export const AD_STAMINA = 10;                // 広告1本で回復するスタミナ
 export const PACK_COST = 2;
 export const REGEN_MS = 2 * 60 * 1000;      // 1スタミナ回復にかかる時間（待ち時間で離脱されないよう短め）
 export const AD_COOLDOWN_MS = 0;   // 広告は見てくれるなら何回でもOKの方針
 export const PITY_THRESHOLD = 20;            // このパック数SSR以上が出なければ次パックで確定
+export const SHARE_BONUS_TICKETS = 30;       // 初回シェアボーナス（一度きり）
 
 const defaults = () => ({
   homePref: null,
@@ -20,6 +23,7 @@ const defaults = () => ({
   deck: [],              // 対戦デッキ（cardId×5）
   defeatedBosses: [],    // 全国制覇: 撃破済みの主（都道府県名）
   tickets: 0,            // パックチケット（スタミナ不要で開封）
+  sharedOnce: false,     // 初回シェアボーナスを受け取り済みか
   winStreak: 0,
   bestStreak: 0,
   wins: 0,
@@ -52,7 +56,8 @@ export function resetAll() {
 }
 
 // --- スタミナ ---
-// 経過時間ぶんの回復を反映してから返す
+// 経過時間ぶんの回復を反映してから返す。
+// STAMINA_MAX以上（広告で上乗せしたぶん）を持っている間は自然回復しない＝溜め込んでも損得なし
 export function getStamina() {
   const now = Date.now();
   if (state.stamina >= STAMINA_MAX) {
@@ -84,8 +89,13 @@ export function spendStamina(n) {
 }
 
 export function addStamina(n) {
-  state.stamina = Math.min(STAMINA_MAX, getStamina() + n);
+  state.stamina = Math.min(STAMINA_CAP, getStamina() + n);
   save();
+}
+
+/** 広告を見る意味があるか（保有上限に達していたら見せても無駄） */
+export function canWatchAd() {
+  return getStamina() < STAMINA_CAP;
 }
 
 // --- 広告 ---
@@ -94,9 +104,13 @@ export function adAvailableInMs() {
   return Math.max(0, remain);
 }
 
+/**
+ * 広告視聴の報酬: スタミナ+AD_STAMINA。
+ * 満タン時に押せないと動線が死ぬので、STAMINA_CAPまでは上限を超えて貯められる
+ */
 export function watchAd() {
   state.adLastAt = Date.now();
-  state.stamina = STAMINA_MAX;   // 広告視聴で全回復
+  state.stamina = Math.min(STAMINA_CAP, getStamina() + AD_STAMINA);
   state.staminaUpdatedAt = Date.now();
   save();
 }
@@ -137,6 +151,20 @@ export function useTicket() {
   return true;
 }
 
+/** 初回シェアボーナス。付与した枚数を返す（2回目以降は0） */
+export function grantFirstShareBonus() {
+  if (state.sharedOnce) return 0;
+  state.sharedOnce = true;
+  state.tickets += SHARE_BONUS_TICKETS;
+  save();
+  return SHARE_BONUS_TICKETS;
+}
+
+/** 初回シェアボーナスが未受け取りか（CTAの出し分け用） */
+export function shareBonusAvailable() {
+  return !state.sharedOnce;
+}
+
 /**
  * ボス初撃破を記録。獲得チケット数を返す（撃破済みならnull）。
  * 配布は節目のみ: 5体ごと+2、全国制覇(47体)でさらに+5（合計23枚）。
@@ -154,19 +182,22 @@ export function recordBossDefeat(pref) {
   return gained;
 }
 
-/** 勝敗を記録し、{streak, gained} を返す（gained=今回獲得チケット） */
-export function recordBattle(result, rewardForStreak) {
+/**
+ * 勝敗を記録し、更新後の連勝数を返す。
+ * バトル自体にチケット報酬は無い（連勝ボーナスは廃止）。
+ * CPU戦はスタミナ消費なしで無限に回せるため、報酬を付けると
+ * 「放置周回でチケット無限」になりガチャ経済と広告の動機が両方壊れる。
+ * チケットの入手はボス初撃破・初回シェアのみ、周回で増やしたいならスタミナ＝広告に誘導する
+ */
+export function recordBattle(result) {
   state.battles++;
-  let gained = 0;
   if (result === 'win') {
     state.wins++;
     state.winStreak++;
     state.bestStreak = Math.max(state.bestStreak, state.winStreak);
-    gained = rewardForStreak(state.winStreak);
-    state.tickets += gained;
   } else if (result === 'lose') {
     state.winStreak = 0;
   } // 引き分けは連勝維持
   save();
-  return { streak: state.winStreak, gained };
+  return state.winStreak;
 }

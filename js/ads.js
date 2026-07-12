@@ -13,6 +13,12 @@
 export const AD_CLIENT = 'ca-pub-4007860542391348';
 export const AD_TEST_MODE = true;   // AdSenseの審査通過後、本番リリース時に false にする
 
+// 常設バナー（ディスプレイ広告）のスロットID。
+// AdSense管理画面 → 広告 → 広告ユニット → 「ディスプレイ広告」を作成し、
+// 発行される data-ad-slot の数字（例: '1234567890'）をここに貼る。
+// 空のままなら .ad-banner の枠は描画されず、レイアウトにも影響しない
+export const AD_SLOT_BANNER = '';
+
 const INTERSTITIAL_COOLDOWN_MS = 3 * 60 * 1000;   // 全画面広告は最短3分間隔
 let lastInterstitialAt = 0;
 // SDKが実際に使える状態になったか。読み込み失敗（広告ブロッカー・審査前・オフライン）時は
@@ -42,6 +48,29 @@ export function initAds() {
     sound: 'off',           // ゲーム自体に音がないためミュート扱い
     onReady: () => { sdkReady = true; console.info('[ads] Ad Placement API ready'); },
   });
+}
+
+/**
+ * ページ内の .ad-banner 要素にディスプレイ広告を流し込む。
+ * リワード広告と違いスタミナに依存せず常時表示できる唯一の枠なので、
+ * ヘッダー下とフッター上に置いてある。スロット未設定なら枠ごと出さない
+ */
+export function initBanners() {
+  if (!AD_CLIENT || !AD_SLOT_BANNER) return;
+  for (const box of document.querySelectorAll('.ad-banner')) {
+    const ins = document.createElement('ins');
+    ins.className = 'adsbygoogle';
+    ins.style.display = 'block';
+    ins.dataset.adClient = AD_CLIENT;
+    ins.dataset.adSlot = AD_SLOT_BANNER;
+    ins.dataset.adFormat = 'auto';
+    ins.dataset.fullWidthResponsive = 'true';
+    if (AD_TEST_MODE) ins.dataset.adtest = 'on';
+    box.appendChild(ins);
+    box.classList.remove('hidden');
+    // adsbygoogleは共通のコマンドキュー。Ad Placement APIのadConfigと同居して問題ない
+    (window.adsbygoogle = window.adsbygoogle || []).push({});
+  }
 }
 
 /**
