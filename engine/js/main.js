@@ -185,12 +185,6 @@ function renderStamina() {
   adBtn.innerHTML = canAd
     ? `${icon('play')}広告を見てスタミナ +${S.AD_STAMINA}`
     : `${icon('play')}スタミナが上限（${S.STAMINA_CAP}）です`;
-  updateBattleAdBtn();
-}
-
-// 対戦結果画面の広告ボタン。スタミナ上限に達している時だけ隠す
-function updateBattleAdBtn() {
-  $('#battle-ad-btn').classList.toggle('hidden', !S.canWatchAd());
 }
 
 function fmtMs(ms) {
@@ -840,7 +834,6 @@ function setupBattleTab() {
     showInterstitial('battle-close');
   };
   $('#battle-again-btn').onclick = () => startBattle(lastBattleOpts);
-  $('#battle-ad-btn').onclick = showAd;
 }
 
 // ---------- 制覇モード（固定ボスの連戦） ----------
@@ -1406,7 +1399,6 @@ function showBattleResult() {
       ${!opts?.bossGroup && nextBossName
         ? `<div class="next-reward">${CONQUEST.ticketHint(nextBossName)}</div>` : ''}
     </div>`;
-  updateBattleAdBtn();
 
   // 対戦結果のシェア文面（ボス撃破 > 連勝 > 通常勝利 > 敗北 の順で自慢度が高いものを出す）
   const shareText = (() => {

@@ -85,11 +85,10 @@ export const CONQUEST = {
 };
 
 // ---------- 広告（Google AdSense） ----------
-// 新ドメインでAdSenseのサイト追加審査が通ったらIDを設定する。空の間はダミー広告で動く
 export const ADS = {
-  client: '',
-  testMode: true,
-  slotBanner: '',
+  client: 'ca-pub-4007860542391348',   // サイト運営者ID（地域版と同一アカウント）
+  testMode: true,                      // 新ドメインのサイト追加審査の通過後、本番リリース時に false にする
+  slotBanner: '',                      // ディスプレイ広告ユニットのスロットID。空ならバナー枠を描画しない
 };
 
 // ---------- アクセス解析（Google Analytics 4） ----------

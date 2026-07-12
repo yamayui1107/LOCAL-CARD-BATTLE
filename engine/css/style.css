@@ -1163,7 +1163,9 @@ body:has(.overlay:not(.hidden)) { overflow: hidden; }
 /* ================= モーダル ================= */
 .modal-box {
   background: rgba(20, 26, 44, .92); border: 1px solid var(--line2);
-  border-radius: 18px; padding: 24px; width: 310px; text-align: center;
+  border-radius: 18px; padding: 24px; width: 310px; max-width: calc(100vw - 32px);
+  text-align: center;
+  -webkit-backdrop-filter: blur(16px);   /* iOS Safariはプレフィックス必須 */
   backdrop-filter: blur(16px);
   box-shadow: 0 24px 70px rgba(0, 0, 0, .5);
 }
@@ -1229,7 +1231,14 @@ body:has(.overlay:not(.hidden)) { overflow: hidden; }
 @media (max-width: 480px) {
   .viewer-tilt .game-card { width: 82vw; min-height: 120vw; }
 }
-.ad-box { width: 330px; }
+/* ダミー広告はスマホの濃色オーバーレイ上で「真っ黒な画面」に見えないよう、
+   ぼかしに頼らない不透明背景＋明るめの枠にする */
+.ad-box {
+  width: 330px;
+  background: #1c2338;
+  border-color: rgba(255, 255, 255, .16);
+}
+.ad-box .ad-fake { background: rgba(255, 255, 255, .05); color: #8f97ad; }
 
 /* ================= SNS共有シート ================= */
 .share-box { width: 430px; max-width: calc(100vw - 32px); }
