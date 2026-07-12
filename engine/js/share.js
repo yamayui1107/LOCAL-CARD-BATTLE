@@ -1,8 +1,9 @@
 // SNS共有。スマホはOSの共有シート（Web Share API・画像添付対応）、
 // 非対応環境（PCブラウザ等）は 画像プレビュー + X / LINE / 保存 / コピー の簡易シートを出す
 import { track } from './analytics.js';
+import { GAME } from './config.js';
 
-const HASHTAG = '地域カードバトル';
+const HASHTAG = GAME.hashtag;
 
 /** 共有用のサイトURL（?vs= などのパラメータを付けられる） */
 export function shareUrl(params = {}) {
@@ -25,7 +26,7 @@ export async function share(text, { url = shareUrl(), image = null } = {}) {
 
   // 画像付きのOS共有シート
   if (image && navigator.canShare) {
-    const file = new File([image], 'local-card-battle.png', { type: 'image/png' });
+    const file = new File([image], GAME.shareFileName, { type: 'image/png' });
     if (navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file], text: full, url });
@@ -77,7 +78,7 @@ function openShareSheet(text, url, image) {
     lastObjectUrl = URL.createObjectURL(image);
     img.src = lastObjectUrl;
     save.href = lastObjectUrl;
-    save.download = 'local-card-battle.png';
+    save.download = GAME.shareFileName;
   }
   img.classList.toggle('hidden', !image);
   save.classList.toggle('hidden', !image);

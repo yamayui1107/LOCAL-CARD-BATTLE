@@ -3,8 +3,8 @@
 import { readFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { parseCSV } from '../js/csv.js';
-import { analyzeDeck, DECK_SIZE } from '../js/battle.js';
+import { parseCSV } from '../../../engine/js/csvparse.js';
+import { analyzeDeck, DECK_SIZE } from '../../../engine/js/battle.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = f => parseCSV(readFileSync(path.join(ROOT, 'data', f), 'utf8'));
@@ -70,6 +70,6 @@ for (const c of a.cards) console.log(`  ${c.card.name} 攻${c.card.attack.toLoca
 console.log(`  発動シナジー: ${a.active.map(s => `${s.name}×${s.multiplier}`).join(' / ')}`);
 
 // 全カード所持時に「おまかせ編成」が到達する戦闘力（ゲーム内の自動編成の上限）
-const { autoBuildDeck } = await import('../js/battle.js');
+const { autoBuildDeck } = await import('../../../engine/js/battle.js');
 const auto = autoBuildDeck(cards, synergies);
 console.log(`\nおまかせ編成の上限: ${power(auto).toLocaleString()} [${auto.map(c => c.name).join(' ')}]`);

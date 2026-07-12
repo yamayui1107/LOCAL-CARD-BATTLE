@@ -1,5 +1,7 @@
 // シェア用画像の生成（Canvas自前合成・外部ライブラリなし）
 // 開封結果・デッキ・対戦（両者のデッキ並び）を1200x630のPNGにする
+import { GAME } from './config.js';
+
 const W = 1200, H = 630;
 
 /**
@@ -13,7 +15,7 @@ const W = 1200, H = 630;
  */
 export async function buildShareImage(spec) {
   try {
-    const { title, sub, rows, footer = '地域カードバトル ─ LOCAL CARD BATTLE' } = spec;
+    const { title, sub, rows, footer = `${GAME.title} ─ ${GAME.titleEn}` } = spec;
     const canvas = document.createElement('canvas');
     canvas.width = W; canvas.height = H;
     const ctx = canvas.getContext('2d');

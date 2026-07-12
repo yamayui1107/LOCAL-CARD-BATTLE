@@ -1,14 +1,15 @@
 // アクセス解析（Google Analytics 4）
 //
-// 使い方:
+// 使い方（IDはゲーム側 config.js の ANALYTICS で設定する）:
 //   1. https://analytics.google.com/ でプロパティを作成（データストリーム=ウェブ）
-//   2. 発行される測定ID（G-XXXXXXXXXX）を GA_ID に貼る
-//   3. GA_ID が空の間は何も読み込まない（開発中・未設定でも安全）
+//   2. 発行される測定ID（G-XXXXXXXXXX）を ANALYTICS.gaId に貼る
+//   3. gaId が空の間は何も読み込まない（開発中・未設定でも安全）
 //
 // PVは自動計測。ゲーム固有の行動は track() でカスタムイベントとして送る
 // （GA4の「イベント」レポートで開封数・対戦数・シェア数などが見られる）
+import { ANALYTICS } from './config.js';
 
-export const GA_ID = 'G-SW8DDDVWKV';
+const GA_ID = ANALYTICS.gaId;
 
 export function initAnalytics() {
   if (!GA_ID || location.hostname === 'localhost') return;   // ローカル開発は計測しない

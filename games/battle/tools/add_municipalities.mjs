@@ -6,7 +6,7 @@
 import { readFileSync, writeFileSync, appendFileSync, mkdirSync, existsSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { parseCSV } from '../js/csv.js';
+import { parseCSV } from '../../../engine/js/csvparse.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const CACHE_DIR = path.join(ROOT, 'tools', 'cache');

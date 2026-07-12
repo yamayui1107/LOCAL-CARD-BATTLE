@@ -5,8 +5,8 @@
 import { readFileSync, writeFileSync } from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import { parseCSV } from '../js/csv.js';
-import { analyzeDeck, DECK_SIZE } from '../js/battle.js';
+import { parseCSV } from '../../../engine/js/csvparse.js';
+import { analyzeDeck, DECK_SIZE } from '../../../engine/js/battle.js';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = f => parseCSV(readFileSync(path.join(ROOT, 'data', f), 'utf8'));

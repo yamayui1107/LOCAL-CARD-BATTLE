@@ -1,5 +1,7 @@
 // セーブデータ管理（localStorage）
-const KEY = 'jimoto-card-v1';
+import { GAME, CONQUEST } from './config.js';
+
+const KEY = GAME.storageKey;
 
 export const STAMINA_MAX = 10;               // 自然回復の上限
 export const STAMINA_CAP = 30;               // 保有上限。広告視聴ぶんはここまで上限を超えて貯められる
@@ -11,7 +13,7 @@ export const PITY_THRESHOLD = 20;            // このパック数SSR以上が�
 export const SHARE_BONUS_TICKETS = 30;       // 初回シェアボーナス（一度きり）
 
 const defaults = () => ({
-  homePref: null,
+  favorite: null,        // お気に入りグループ（地元）。排出重みが上がる
   collection: {},        // cardId -> 所持枚数
   newCards: [],          // 未確認のNEWカードid
   stamina: STAMINA_MAX,
@@ -21,7 +23,7 @@ const defaults = () => ({
   pitySinceSSR: 0,
   adLastAt: 0,
   deck: [],              // 対戦デッキ（cardId×5）
-  defeatedBosses: [],    // 全国制覇: 撃破済みの主（都道府県名）
+  defeatedBosses: [],    // 制覇モード: 撃破済みの主（グループ値）
   tickets: 0,            // パックチケット（スタミナ不要で開封）
   sharedOnce: false,     // 初回シェアボーナスを受け取り済みか
   winStreak: 0,
@@ -36,7 +38,13 @@ function load() {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) return defaults();
-    return { ...defaults(), ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    // 旧フィールド名の移行（homePref → favorite）。既存プレイヤーのセーブを壊さない
+    if (parsed.homePref !== undefined && parsed.favorite === undefined) {
+      parsed.favorite = parsed.homePref;
+      delete parsed.homePref;
+    }
+    return { ...defaults(), ...parsed };
   } catch {
     return defaults();
   }
@@ -167,16 +175,17 @@ export function shareBonusAvailable() {
 
 /**
  * ボス初撃破を記録。獲得チケット数を返す（撃破済みならnull）。
- * 配布は節目のみ: 5体ごと+2、全国制覇(47体)でさらに+5（合計23枚）。
- * 毎撃破+1だと計62枚でガチャ経済が崩壊するため絞っている
+ * 配布は節目のみ: milestoneEvery体ごと+milestoneTickets、全制覇でさらに+completeTickets
+ * （config.jsのCONQUEST.rewards）。毎撃破+1だとガチャ経済が崩壊するため絞っている
  */
-export function recordBossDefeat(pref) {
-  if (state.defeatedBosses.includes(pref)) return null;
-  state.defeatedBosses.push(pref);
+export function recordBossDefeat(group, totalBosses) {
+  if (state.defeatedBosses.includes(group)) return null;
+  state.defeatedBosses.push(group);
   const n = state.defeatedBosses.length;
+  const r = CONQUEST.rewards;
   let gained = 0;
-  if (n % 5 === 0) gained += 2;
-  if (n === 47) gained += 5;
+  if (n % r.milestoneEvery === 0) gained += r.milestoneTickets;
+  if (n === totalBosses) gained += r.completeTickets;
   state.tickets += gained;
   save();
   return gained;

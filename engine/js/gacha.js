@@ -1,13 +1,12 @@
 // ガチャ抽選ロジック
+import { FAVORITE } from './config.js';
+
 export const RARITY_ORDER = ['N', 'R', 'SR', 'SSR', 'UR'];
 
 // レアリティの排出率（%）。カード枚数に左右されないよう先にレアリティを抽選する
 // 高レアは絞りめ。代わりに通算25枚（=5パック）ごとにSR以上確定（drawPack参照）
 export const RARITY_RATE = { N: 59, R: 28, SR: 10, SSR: 2.4, UR: 0.6 };
 export const SR_GUARANTEE_EVERY = 25;
-
-// 地元都道府県のカードは同レアリティ内での選出重みアップ（地元確変）
-const HOME_BOOST = 2.5;
 
 export function rarityIndex(r) {
   return RARITY_ORDER.indexOf(r);
@@ -25,12 +24,12 @@ function drawRarity(minRarity = 0) {
   return entries[entries.length - 1][0];
 }
 
-// 指定レアリティの中から1枚選ぶ（地元カードは重み2.5倍）
-function drawCardOf(cards, rarity, homePref) {
+// 指定レアリティの中から1枚選ぶ（お気に入りグループ（地元）のカードは重みアップ）
+function drawCardOf(cards, rarity, favorite) {
   const pool = cards.filter(c => c.rarity === rarity);
   let total = 0;
   const weights = pool.map(c => {
-    const w = (homePref && c.prefecture === homePref) ? HOME_BOOST : 1;
+    const w = (favorite && c.group === favorite) ? FAVORITE.boost : 1;
     total += w;
     return w;
   });
@@ -42,8 +41,8 @@ function drawCardOf(cards, rarity, homePref) {
   return pool[pool.length - 1];
 }
 
-function drawOne(cards, homePref, minRarity = 0) {
-  return drawCardOf(cards, drawRarity(minRarity), homePref);
+function drawOne(cards, favorite, minRarity = 0) {
+  return drawCardOf(cards, drawRarity(minRarity), favorite);
 }
 
 /**
@@ -58,18 +57,18 @@ export function isGuaranteedPack(totalDraws) {
   return SR_GUARANTEE_EVERY - (totalDraws % SR_GUARANTEE_EVERY) <= 5;
 }
 
-export function drawPack(cards, homePref, pityGuarantee, totalDrawsStart = 0) {
+export function drawPack(cards, favorite, pityGuarantee, totalDrawsStart = 0) {
   const pack = [];
   for (let i = 0; i < 5; i++) {
     const globalN = totalDrawsStart + i + 1;
     let minRarity = 0;
     if (globalN % SR_GUARANTEE_EVERY === 0) minRarity = rarityIndex('SR');
     else if (i === 4) minRarity = rarityIndex('R');
-    pack.push(drawOne(cards, homePref, minRarity));
+    pack.push(drawOne(cards, favorite, minRarity));
   }
 
   if (pityGuarantee && !pack.some(c => rarityIndex(c.rarity) >= rarityIndex('SSR'))) {
-    pack[4] = drawOne(cards, homePref, rarityIndex('SSR'));
+    pack[4] = drawOne(cards, favorite, rarityIndex('SSR'));
   }
 
   // 開封演出が盛り上がるようにレア昇順で並べる（最高レアが最後）

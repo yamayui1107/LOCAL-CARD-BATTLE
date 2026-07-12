@@ -1,23 +1,24 @@
 // 広告統合レイヤー（Google AdSense H5 Games Ads / Ad Placement API）
 //
-// 使い方:
-//   1. AdSenseの審査に通ったら AD_CLIENT にサイト運営者ID（ca-pub-…）を設定する
-//   2. 審査前・動作確認中は AD_TEST_MODE = true のままにする（テスト広告が出る）
-//   3. AD_CLIENT が空の間は「本物の広告なし」として動き、
+// 使い方（IDはゲーム側 config.js の ADS で設定する）:
+//   1. AdSenseの審査に通ったら ADS.client にサイト運営者ID（ca-pub-…）を設定する
+//   2. 審査前・動作確認中は ADS.testMode = true のままにする（テスト広告が出る）
+//   3. ADS.client が空の間は「本物の広告なし」として動き、
 //      呼び出し側（main.js）がダミー広告モーダルにフォールバックする
 //
 // リワード広告: showRewarded() … スタミナ全回復など「見たら報酬」用
 // インタースティシャル: showInterstitial() … 区切り（開封を閉じた時など）に挟む全画面広告。
 //   頻度はGoogle側の制御に加えて、うっとうしくならないよう自前のクールダウンも掛ける
+import { ADS } from './config.js';
 
-export const AD_CLIENT = 'ca-pub-4007860542391348';
-export const AD_TEST_MODE = true;   // AdSenseの審査通過後、本番リリース時に false にする
+const AD_CLIENT = ADS.client;
+const AD_TEST_MODE = ADS.testMode;
 
 // 常設バナー（ディスプレイ広告）のスロットID。
 // AdSense管理画面 → 広告 → 広告ユニット → 「ディスプレイ広告」を作成し、
-// 発行される data-ad-slot の数字（例: '1234567890'）をここに貼る。
+// 発行される data-ad-slot の数字（例: '1234567890'）を ADS.slotBanner に貼る。
 // 空のままなら .ad-banner の枠は描画されず、レイアウトにも影響しない
-export const AD_SLOT_BANNER = '';
+const AD_SLOT_BANNER = ADS.slotBanner;
 
 const INTERSTITIAL_COOLDOWN_MS = 3 * 60 * 1000;   // 全画面広告は最短3分間隔
 let lastInterstitialAt = 0;

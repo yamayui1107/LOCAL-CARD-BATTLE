@@ -1,40 +1,13 @@
-// シンプルなCSVパーサ（クォート対応）
-export function parseCSV(text) {
-  // BOM付きで保存されると先頭列名が壊れるので剥がしておく
-  const lines = text.replace(/^\uFEFF/, '').replace(/\r\n/g, '\n').split('\n').filter(l => l.trim() !== '');
-  const header = splitLine(lines[0]);
-  return lines.slice(1).map(line => {
-    const cells = splitLine(line);
-    const row = {};
-    header.forEach((h, i) => { row[h] = cells[i] ?? ''; });
-    return row;
-  });
-}
+import { GROUP } from './config.js';
 
-function splitLine(line) {
-  const out = [];
-  let cur = '';
-  let inQ = false;
-  for (let i = 0; i < line.length; i++) {
-    const ch = line[i];
-    if (inQ) {
-      if (ch === '"') {
-        if (line[i + 1] === '"') { cur += '"'; i++; }
-        else inQ = false;
-      } else cur += ch;
-    } else {
-      if (ch === '"') inQ = true;
-      else if (ch === ',') { out.push(cur); cur = ''; }
-      else cur += ch;
-    }
-  }
-  out.push(cur);
-  return out;
-}
+import { parseCSV } from './csvparse.js';
+
+export { parseCSV };
 
 /**
  * 正規化された5つのCSVを読み込んでJOINし、ゲームで使うオブジェクトを組み立てる
- *   card_master.csv   : id,name,reading,type,prefecture,rarity
+ *   card_master.csv   : id,name,reading,type,<GROUP.csvField>,rarity
+ *                       （グループ列の名前はconfig.jsのGROUP.csvFieldで指定。card.groupに入る）
  *   card_detail.csv   : card_id,attack,defense,description
  *   card_tag.csv      : card_id,tag
  *   tag_master.csv    : tag,description
@@ -72,8 +45,8 @@ export async function loadAll() {
       id: m.id,
       name: m.name,
       reading: m.reading,
-      type: m.type,             // pref | city | spot
-      prefecture: m.prefecture,
+      type: m.type,             // config.jsのCARD_TYPESのキー
+      group: m[GROUP.csvField],
       rarity: m.rarity,          // N R SR SSR UR
       attack: Number(d?.attack ?? 0),
       defense: Number(d?.defense ?? 0),
@@ -100,7 +73,7 @@ export async function loadAll() {
   const cardById = new Map(cards.map(c => [c.id, c]));
   const bosses = (bossText ? parseCSV(bossText) : []).map(r => ({
     order: Number(r.order),
-    pref: r.pref,
+    group: r[GROUP.bossCsvField],   // 撃破記録のキー（テーマのグループ値）
     name: r.name,
     deck: r.deck.split('|').map(id => cardById.get(id)).filter(Boolean),
     power: Number(r.power),

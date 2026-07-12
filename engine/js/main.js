@@ -6,6 +6,7 @@ import { initAds, initBanners, showRewarded, showInterstitial } from './ads.js';
 import { share, shareUrl, initShare } from './share.js';
 import { buildShareImage } from './shareimg.js';
 import { initAnalytics, track } from './analytics.js';
+import { GAME, GROUP, CARD_TYPES, placeOf, FAVORITE, COLLECTION, SYNERGY, CONQUEST, SHARE } from './config.js';
 
 let CARDS = [];
 let SYNERGIES = [];
@@ -15,19 +16,14 @@ let BOSSES = [];
 let currentPack = null;
 let flippedCount = 0;
 
-const REGIONS = {
-  '北海道・東北': ['北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県'],
-  '関東': ['茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県'],
-  '中部': ['新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県', '静岡県', '愛知県'],
-  '近畿': ['三重県', '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県'],
-  '中国・四国': ['鳥取県', '島根県', '岡山県', '広島県', '山口県', '徳島県', '香川県', '愛媛県', '高知県'],
-  '九州・沖縄': ['福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'],
-};
-
 const $ = (sel) => document.querySelector(sel);
 const icon = (name) => `<svg class="ic" aria-hidden="true"><use href="#i-${name}"></use></svg>`;
-const regionOf = (pref) => Object.keys(REGIONS).find(r => REGIONS[r].includes(pref)) || '';
 const fmt = (n) => n.toLocaleString('ja-JP');   // 大きい数字はカンマ区切りで迫力を出す
+
+// グループの上位分類。config未定義のテーマでは全グループを1分類として扱う
+function groupCategories() {
+  return GROUP.categories || { [GROUP.label]: [...new Set(CARDS.map(c => c.group))] };
+}
 
 // 一覧用は240pxサムネイル、拡大表示ではフル解像度を使う
 function artUrl(img, small) {
@@ -56,16 +52,30 @@ async function init() {
     return;
   }
 
+  applyTheme();
   initAds();
   initBanners();
   initShare();
   initAnalytics();
 
-  if (!S.getState().homePref) {
+  if (!S.getState().favorite) {
     showOnboarding();
   } else {
     showHome();
   }
+}
+
+// config.jsのテーマ文言を静的HTMLに流し込む（index.html本体はテーマ非依存に保つ）
+function applyTheme() {
+  document.title = `${GAME.title} | ${GAME.titleEn}`;
+  $('.logo').textContent = GAME.title;
+  $('.game-title').textContent = GAME.title;
+  $('.title-sub').textContent = GAME.titleEn;
+  document.querySelectorAll('.pack-label-title').forEach(el => { el.textContent = GAME.packTitle; });
+  document.querySelectorAll('.pack-label-sub').forEach(el => { el.textContent = GAME.packSub; });
+  $('#conquest-title').textContent = CONQUEST.title;
+  $('#filter-category option[value=""]').textContent = GROUP.filterAllLabel;
+  $('#filter-search').placeholder = COLLECTION.searchPlaceholder;
 }
 
 // 共有リンク（?vs=デッキコード）で開かれたら、対戦タブを開いてコードを自動入力する
@@ -78,34 +88,34 @@ function applySharedCode() {
   $('#battle-hint').textContent = 'フレンドのデッキコードを受け取りました。デッキを組んで「対戦する」を押そう！';
 }
 
-// ---------- 地元選択（初回 & 変更） ----------
+// ---------- 地元（お気に入りグループ）選択（初回 & 変更） ----------
 function showOnboarding(isChange = false) {
   $('#home').classList.add('hidden');
   $('#onboarding').classList.remove('hidden');
-  $('.onboard-lead').innerHTML = isChange
-    ? '<strong>地元</strong>を変更する<br><span class="onboard-note">選んだ都道府県のカードが出やすくなります（コレクションはそのまま）</span>'
-    : 'あなたの<strong>地元</strong>はどこ？<br><span class="onboard-note">地元の都道府県のカードが出やすくなります</span>';
-  const picker = $('#pref-picker');
+  $('.onboard-lead').innerHTML = isChange ? FAVORITE.onboardLeadChange : FAVORITE.onboardLeadNew;
+  const picker = $('#group-picker');
   picker.innerHTML = '';
-  const current = S.getState().homePref;
-  for (const [region, prefs] of Object.entries(REGIONS)) {
-    const h = document.createElement('div');
-    h.className = 'region-label';
-    h.textContent = region;
-    picker.appendChild(h);
+  const current = S.getState().favorite;
+  for (const [category, groups] of Object.entries(groupCategories())) {
+    if (category) {
+      const h = document.createElement('div');
+      h.className = 'category-label';
+      h.textContent = category;
+      picker.appendChild(h);
+    }
     const grid = document.createElement('div');
-    grid.className = 'pref-grid';
-    for (const p of prefs) {
+    grid.className = 'group-grid';
+    for (const g of groups) {
       const btn = document.createElement('button');
-      btn.className = 'pref-btn' + (p === current ? ' current' : '');
-      btn.textContent = p;
+      btn.className = 'group-btn' + (g === current ? ' current' : '');
+      btn.textContent = g;
       btn.onclick = () => {
-        S.getState().homePref = p;
+        S.getState().favorite = g;
         S.save();
         $('#onboarding').classList.add('hidden');
         if (isChange) {
           $('#home').classList.remove('hidden');
-          $('#home-badge').innerHTML = `${icon('pin')}${p}<span class="badge-edit">変更</span>`;
+          $('#home-badge').innerHTML = `${icon('pin')}${g}<span class="badge-edit">変更</span>`;
           renderPackInfo();
         } else {
           showHome();
@@ -120,7 +130,7 @@ function showOnboarding(isChange = false) {
 // ---------- メイン画面 ----------
 function showHome() {
   $('#home').classList.remove('hidden');
-  $('#home-badge').innerHTML = `${icon('pin')}${S.getState().homePref}<span class="badge-edit">変更</span>`;
+  $('#home-badge').innerHTML = `${icon('pin')}${S.getState().favorite}<span class="badge-edit">変更</span>`;
   $('#home-badge').onclick = () => showOnboarding(true);
   setupTabs();
   setupPackTab();
@@ -209,9 +219,7 @@ function setupPackTab() {
   // 初回シェアボーナスのCTA（未受け取りの間だけ出る）
   $('#share-bonus-btn').onclick = () => {
     const owned = CARDS.filter(c => S.ownedCount(c.id) > 0).length;
-    shareAndReward(
-      `「地域カードバトル」で地元${S.getState().homePref}のカードを集めてる！ コレクション ${owned}/${CARDS.length}枚`
-    );
+    shareAndReward(SHARE.collection(S.getState().favorite, owned, CARDS.length));
   };
   // 開封結果のシェア: 5枚並びの画像＋いちばんレアな1枚の自慢文
   $('#share-pull-btn').onclick = async () => {
@@ -222,7 +230,7 @@ function setupPackTab() {
       sub: `${best.rarity}『${best.name}』を引き当てた！`,
       rows: [{ cards: currentPack.map(shareCardEntry) }],
     });
-    shareAndReward(`「地域カードバトル」で ${best.rarity}『${best.name}』を引き当てた！`, { image });
+    shareAndReward(SHARE.pull(best), { image });
   };
   $('#flip-all-btn').onclick = flipAll;
   $('#to-result-btn').onclick = showResult;
@@ -242,10 +250,10 @@ function setupPackTab() {
 function renderPackInfo() {
   const owned = CARDS.filter(c => S.ownedCount(c.id) > 0).length;
   $('#collection-progress').textContent = `コレクション ${owned} / ${CARDS.length}`;
-  const homePref = S.getState().homePref;
-  const homeOwned = CARDS.filter(c => c.prefecture === homePref && S.ownedCount(c.id) > 0).length;
-  const homeTotal = CARDS.filter(c => c.prefecture === homePref).length;
-  $('#pack-hint').textContent = `地元${homePref}のカードが出やすい！（地元コンプ ${homeOwned}/${homeTotal}）`;
+  const fav = S.getState().favorite;
+  const favOwned = CARDS.filter(c => c.group === fav && S.ownedCount(c.id) > 0).length;
+  const favTotal = CARDS.filter(c => c.group === fav).length;
+  $('#pack-hint').textContent = FAVORITE.packHint(fav, favOwned, favTotal);
 
   const tickets = S.getState().tickets;
   const tBtn = $('#ticket-btn');
@@ -291,7 +299,7 @@ function tryOpenPack(useTicket = false, quick = false) {
   const st = S.getState();
   const pity = st.pitySinceSSR >= S.PITY_THRESHOLD;
   const guarantee = nextGuarantee();   // totalDrawsを進める前に、このパックの確定枠を確定させる
-  currentPack = drawPack(CARDS, st.homePref, pity, st.totalDraws);
+  currentPack = drawPack(CARDS, st.favorite, pity, st.totalDraws);
   st.totalDraws += currentPack.length;
   st.packsOpened++;
   st.pitySinceSSR = hasSSRorAbove(currentPack) ? 0 : st.pitySinceSSR + 1;
@@ -355,7 +363,7 @@ function layoutCards() {
     slot.style.animationDelay = `${i * 0.08}s`;
     slot.innerHTML = `
       <div class="flip-inner">
-        <div class="flip-back"><div class="back-emblem"><span>地域</span></div></div>
+        <div class="flip-back"><div class="back-emblem"><span>${GAME.backEmblem}</span></div></div>
         <div class="flip-front">${cardHTML(card, true)}</div>
       </div>`;
     slot.onclick = () => flipCard(slot, card);
@@ -406,7 +414,7 @@ function showResult() {
     div.innerHTML = `
       <span class="rarity-gem gem-${card.rarity.toLowerCase()}">${card.rarity}</span>
       <span class="result-name">${card.name}</span>
-      <span class="result-pref">${card.prefecture}</span>
+      <span class="result-place">${card.group}</span>
       ${isNew ? '<span class="new-badge">NEW!</span>' : `<span class="dup">${S.ownedCount(card.id)}枚目</span>`}`;
     div.onclick = () => showCardModal(card);
     list.appendChild(div);
@@ -516,10 +524,7 @@ function shareCardEntry(card) {
 function cardHTML(card, compact = false) {
   const tagChips = card.tags.map(t =>
     `<span class="tag-chip" title="${TAG_MASTER.get(t) || ''}">${t}</span>`).join('');
-  const typeLabel = card.type === 'pref' ? '都道府県' : card.type === 'spot' ? '名所' : '市区町村';
-  const sealChar = card.type === 'pref' ? '都' : card.type === 'spot' ? '景' : '町';
-  // 都道府県カードは自分自身が県名なので、所在地には地方名を出す
-  const place = card.type === 'pref' ? regionOf(card.prefecture) : card.prefecture;
+  const type = CARD_TYPES[card.type] || { label: card.type, seal: '' };
   const img = IMAGES.get(card.id);
   const art = img ? `<div class="card-art">${artImg(card, compact)}</div>` : '';
   return `
@@ -527,18 +532,18 @@ function cardHTML(card, compact = false) {
       ${art}
       <div class="card-head">
         <span class="rarity-gem gem-${card.rarity.toLowerCase()}">${card.rarity}</span>
-        <span class="card-type">${typeLabel}</span>
+        <span class="card-type">${type.label}</span>
       </div>
       <div class="card-name">${card.name}</div>
       <div class="card-reading">${card.reading}</div>
-      <div class="card-pref">${icon('pin')}${place}</div>
+      <div class="card-place">${icon('pin')}${placeOf(card)}</div>
       <div class="card-stats">
         <span class="stat atk">${icon('sword')}${fmt(card.attack)}</span>
         <span class="stat def">${icon('shield')}${fmt(card.defense)}</span>
       </div>
       <div class="card-tags">${tagChips}</div>
       ${compact ? '' : `<div class="card-desc">${card.description}</div>`}
-      <span class="card-seal">${sealChar}</span>
+      ${type.seal ? `<span class="card-seal">${type.seal}</span>` : ''}
       <i class="card-holo"></i>
     </div>`;
 }
@@ -548,7 +553,7 @@ function showCardModal(card) {
   const owned = S.ownedCount(card.id);
   const img = IMAGES.get(card.id);
   const credit = img
-    ? `<div class="modal-credit">画像: <a href="${img.source_url}" target="_blank" rel="noopener">Wikimedia Commons</a>
+    ? `<div class="modal-credit">画像: <a href="${img.source_url}" target="_blank" rel="noopener">${GAME.imageCreditLabel}</a>
        / ${img.artist}（${img.license}）</div>`
     : '';
   $('#card-modal-content').innerHTML = `
@@ -572,13 +577,12 @@ function showCardModal(card) {
   const shareBtn = $('#card-share-btn');
   if (shareBtn) {
     shareBtn.onclick = async () => {
-      const place = card.type === 'pref' ? regionOf(card.prefecture) : card.prefecture;
       const image = await buildShareImage({
         title: `${card.rarity}『${card.name}』`,
-        sub: `${card.reading} ─ ${place}`,
+        sub: `${card.reading} ─ ${placeOf(card)}`,
         rows: [{ cards: [shareCardEntry(card)] }],
       });
-      shareAndReward(`「地域カードバトル」で ${card.rarity}『${card.name}』をゲット！ 攻${fmt(card.attack)}／防${fmt(card.defense)}`, { image });
+      shareAndReward(SHARE.card(card, fmt), { image });
     };
   }
 
@@ -649,14 +653,14 @@ function enableGyro(handler) {
 
 // ---------- 図鑑 ----------
 function setupCollectionTab() {
-  const regionSel = $('#filter-region');
-  for (const region of Object.keys(REGIONS)) {
+  const categorySel = $('#filter-category');
+  for (const category of Object.keys(groupCategories())) {
     const opt = document.createElement('option');
-    opt.value = region;
-    opt.textContent = region;
-    regionSel.appendChild(opt);
+    opt.value = category;
+    opt.textContent = category;
+    categorySel.appendChild(opt);
   }
-  regionSel.onchange = renderCollection;
+  categorySel.onchange = renderCollection;
   $('#filter-rarity').onchange = renderCollection;
   $('#filter-owned').onchange = renderCollection;
   // 検索は打鍵ごとに全再描画すると重いのでデバウンス
@@ -673,17 +677,17 @@ let collectionList = [];
 let collectionShown = 0;
 
 function renderCollection() {
-  const region = $('#filter-region').value;
+  const category = $('#filter-category').value;
   const rarity = $('#filter-rarity').value;
   const ownedOnly = $('#filter-owned').checked;
   const q = $('#filter-search').value.trim();
 
   let list = CARDS;
-  if (region) list = list.filter(c => REGIONS[region].includes(c.prefecture));
+  if (category) list = list.filter(c => groupCategories()[category].includes(c.group));
   if (rarity) list = list.filter(c => c.rarity === rarity);
   if (ownedOnly) list = list.filter(c => S.ownedCount(c.id) > 0);
   if (q) list = list.filter(c =>
-    c.name.includes(q) || c.reading.includes(q) || c.prefecture.includes(q));
+    c.name.includes(q) || c.reading.includes(q) || c.group.includes(q));
 
   const ownedAll = CARDS.filter(c => S.ownedCount(c.id) > 0).length;
   const pct = Math.round((ownedAll / CARDS.length) * 100);
@@ -716,7 +720,7 @@ function renderMoreCollection() {
         <div class="game-card unknown rarity-${card.rarity.toLowerCase()}">
           <div class="card-head"><span class="rarity-gem gem-${card.rarity.toLowerCase()}">${card.rarity}</span></div>
           <div class="unknown-mark">？</div>
-          <div class="card-pref">${icon('pin')}${card.prefecture}</div>
+          <div class="card-place">${icon('pin')}${card.group}</div>
         </div>`;
     }
     frag.appendChild(cell);
@@ -755,7 +759,7 @@ function renderSynergyTab() {
         <span class="synergy-mult">×${sy.multiplier.toFixed(1)}</span>
       </div>
       <div class="synergy-req">「${sy.tag}」タグ ${progress}/${sy.count}枚
-        <span class="synergy-total">（全国に${tagCards.length}枚存在）</span></div>
+        <span class="synergy-total">${SYNERGY.poolNote(tagCards.length)}</span></div>
       <div class="synergy-bar"><div class="synergy-bar-fill" style="width:${(progress / sy.count) * 100}%"></div></div>
       <div class="synergy-desc">${sy.description}</div>
       <div class="synergy-cards">${chips}${ownedCards.length > 8 ? `<span class="tag-chip">+${ownedCards.length - 8}</span>` : ''}</div>`;
@@ -799,7 +803,7 @@ function setupBattleTab() {
       rows: [{ cards: cards.map(shareCardEntry) }],
       footer: `デッキコード: ${code}`,
     });
-    shareAndReward(`「地域カードバトル」戦闘力${fmt(power)}のデッキで待ってるぞ！ コード: ${code}`,
+    shareAndReward(SHARE.deck(power, code, fmt),
       { url: shareUrl({ vs: code }), image });
   };
   $('#friend-battle-btn').onclick = () => {
@@ -829,16 +833,16 @@ function setupBattleTab() {
   $('#battle-ad-btn').onclick = showAd;
 }
 
-// ---------- 全国制覇（47都道府県の主） ----------
+// ---------- 制覇モード（固定ボスの連戦） ----------
 function renderConquest() {
   const done = new Set(S.getState().defeatedBosses);
-  const next = BOSSES.find(b => !done.has(b.pref));
+  const next = BOSSES.find(b => !done.has(b.group));
   $('#conquest-progress').innerHTML =
-    `撃破 <b>${done.size}</b> / ${BOSSES.length}${done.size === BOSSES.length ? '　全国制覇達成！' : ''}`;
+    `撃破 <b>${done.size}</b> / ${BOSSES.length}${done.size === BOSSES.length ? `　${CONQUEST.completeText}` : ''}`;
   const grid = $('#conquest-grid');
   grid.innerHTML = '';
   for (const boss of BOSSES) {
-    const status = done.has(boss.pref) ? 'done' : (boss === next ? 'open' : 'locked');
+    const status = done.has(boss.group) ? 'done' : (boss === next ? 'open' : 'locked');
     const btn = document.createElement('button');
     btn.className = `boss-chip ${status}`;
     btn.disabled = status === 'locked';
@@ -852,7 +856,7 @@ function renderConquest() {
           $('#battle-hint').textContent = '先にデッキを5枚組もう！';
           return;
         }
-        startBattle({ cpuDeck: boss.deck, label: boss.name, bossPref: boss.pref });
+        startBattle({ cpuDeck: boss.deck, label: boss.name, bossGroup: boss.group });
       };
     }
     grid.appendChild(btn);
@@ -1030,7 +1034,7 @@ let lastBattleOpts = undefined;
 function startBattle(opts = {}) {
   const pDeck = deckCards();
   if (pDeck.length < B.DECK_SIZE) return;
-  track('battle_start', { mode: opts.bossPref ? 'boss' : opts.cpuDeck ? 'friend' : 'cpu' });
+  track('battle_start', { mode: opts.bossGroup ? 'boss' : opts.cpuDeck ? 'friend' : 'cpu' });
   lastBattleOpts = opts;
   const cDeck = opts.cpuDeck || B.buildCpuDeck(CARDS, pDeck, SYNERGIES);
   const pA = B.analyzeDeck(pDeck, SYNERGIES);
@@ -1357,19 +1361,20 @@ function showBattleResult() {
   const { res, pA, cA, opts } = pendingResult;
   const result = res.winner === 'p' ? 'win' : res.winner === 'c' ? 'lose' : 'draw';
   const streak = S.recordBattle(result);
-  // ボス初撃破の報酬（チケットが手に入るのは全国制覇のここだけ。通常CPU戦・フレンド戦は0枚）
+  // ボス初撃破の報酬（チケットが手に入るのは制覇モードのここだけ。通常CPU戦・フレンド戦は0枚）
   let bossLine = '';
-  if (opts?.bossPref && result === 'win') {
-    const bossGained = S.recordBossDefeat(opts.bossPref);   // null=撃破済み / 0以上=初撃破の獲得チケット
+  if (opts?.bossGroup && result === 'win') {
+    const bossGained = S.recordBossDefeat(opts.bossGroup, BOSSES.length);   // null=撃破済み / 0以上=初撃破の獲得チケット
     const count = S.getState().defeatedBosses.length;
     if (bossGained === null) {
       bossLine = `<div class="next-reward">${opts.label}に勝利（撃破済み）</div>`;
     } else {
       bossLine = `<div class="reward-line">${icon('check')}${opts.label}を撃破！（${count}/${BOSSES.length}）${bossGained > 0 ? `チケット <b>+${bossGained}</b>枚` : ''}</div>`;
       if (count === BOSSES.length) {
-        bossLine += `<div class="reward-line">${icon('sparkles')}全国制覇達成！！</div>`;
+        bossLine += `<div class="reward-line">${icon('sparkles')}${CONQUEST.completeText}</div>`;
       } else if (bossGained === 0) {
-        bossLine += `<div class="next-reward">あと${5 - count % 5}体撃破でチケット+2</div>`;
+        const r = CONQUEST.rewards;
+        bossLine += `<div class="next-reward">あと${r.milestoneEvery - count % r.milestoneEvery}体撃破でチケット+${r.milestoneTickets}</div>`;
       }
     }
   }
@@ -1381,28 +1386,25 @@ function showBattleResult() {
   title.className = `result-${result}`;
   if (result === 'win') flashScreen('gold', 700);
 
-  // 通常CPU戦・フレンド戦は報酬なし。チケットが欲しいなら全国制覇へ、という導線を出す
-  const nextBossName = BOSSES.find(b => !new Set(st.defeatedBosses).has(b.pref))?.name;
+  // 通常CPU戦・フレンド戦は報酬なし。チケットが欲しいなら制覇モードへ、という導線を出す
+  const nextBossName = BOSSES.find(b => !new Set(st.defeatedBosses).has(b.group))?.name;
   $('#battle-result-body').innerHTML = `
     <p class="result-sub">${result !== 'draw' ? `${res.tier}！ ` : ''}戦闘力 あなた <b>${fmt(pA.total)}</b> − <b>${fmt(cA.total)}</b> ${oppName}</p>
     <div class="result-streak">
       ${bossLine}
       <div>連勝: <b>${streak}</b>（最高 ${st.bestStreak}）</div>
-      ${!opts?.bossPref && nextBossName
-        ? `<div class="next-reward">チケットは全国制覇でもらえる — 次は${nextBossName}</div>` : ''}
+      ${!opts?.bossGroup && nextBossName
+        ? `<div class="next-reward">${CONQUEST.ticketHint(nextBossName)}</div>` : ''}
     </div>`;
   updateBattleAdBtn();
 
   // 対戦結果のシェア文面（ボス撃破 > 連勝 > 通常勝利 > 敗北 の順で自慢度が高いものを出す）
   const shareText = (() => {
-    if (result === 'win' && opts?.bossPref) {
-      return `「地域カードバトル」で${opts.label}を撃破！（全国制覇 ${S.getState().defeatedBosses.length}/${BOSSES.length}）`;
+    if (result === 'win' && opts?.bossGroup) {
+      return SHARE.bossWin(opts.label, S.getState().defeatedBosses.length, BOSSES.length);
     }
-    if (result === 'win') {
-      const streakNote = streak >= 3 ? ` ただいま${streak}連勝中！` : '';
-      return `「地域カードバトル」戦闘力${fmt(pA.total)}で${res.tier}！${streakNote}`;
-    }
-    return `「地域カードバトル」戦闘力${fmt(pA.total)}で挑むも敗北…誰かリベンジ手伝って`;
+    if (result === 'win') return SHARE.win(pA.total, res.tier, streak, fmt);
+    return SHARE.lose(pA.total, fmt);
   })();
   // シェア画像: 両者のデッキ5枚ずつを並べ、負けた側を暗く落とす
   $('#battle-share-btn').onclick = async () => {
@@ -1420,15 +1422,15 @@ function showBattleResult() {
   // ボス勝利→次の主へ / ボス敗北→ガチャに誘導 / それ以外→もう一戦
   const againBtn = $('#battle-again-btn');
   againBtn.classList.remove('hidden');
-  if (opts?.bossPref) {
+  if (opts?.bossGroup) {
     if (result === 'win') {
       const done = new Set(S.getState().defeatedBosses);
-      const nextBoss = BOSSES.find(b => !done.has(b.pref));
+      const nextBoss = BOSSES.find(b => !done.has(b.group));
       if (nextBoss) {
         againBtn.innerHTML = `${icon('sword')}${nextBoss.name}に挑む`;
-        againBtn.onclick = () => startBattle({ cpuDeck: nextBoss.deck, label: nextBoss.name, bossPref: nextBoss.pref });
+        againBtn.onclick = () => startBattle({ cpuDeck: nextBoss.deck, label: nextBoss.name, bossGroup: nextBoss.group });
       } else {
-        againBtn.classList.add('hidden');   // 全国制覇達成
+        againBtn.classList.add('hidden');   // 全ボス制覇達成
       }
     } else {
       againBtn.innerHTML = `${icon('gift')}パックを引いて強化する`;

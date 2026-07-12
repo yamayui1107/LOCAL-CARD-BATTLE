@@ -126,7 +126,7 @@ body::before {
 }
 .doc-footer { margin-top: 26px; font-size: 11px; color: #4a5168; }
 
-/* ================= 地元選択 ================= */
+/* ================= 地元（お気に入りグループ）選択 ================= */
 .onboard-inner { max-width: 760px; margin: 0 auto; padding: 56px 20px 90px; text-align: center; }
 .game-title {
   font-family: var(--font-display);
@@ -143,20 +143,20 @@ body::before {
 }
 .onboard-lead { margin: 20px 0 32px; font-size: 17px; line-height: 1.9; color: var(--text); }
 .onboard-note { font-size: 13px; color: var(--sub); }
-.region-label {
+.category-label {
   text-align: left; margin: 26px 0 10px; color: var(--accent);
   font-size: 12px; font-weight: 700; letter-spacing: .14em;
   display: flex; align-items: center; gap: 10px;
 }
-.region-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(242,193,78,.3), transparent); }
-.pref-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
-.pref-btn {
+.category-label::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, rgba(242,193,78,.3), transparent); }
+.group-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; }
+.group-btn {
   padding: 11px 4px; border: 1px solid var(--line); border-radius: 10px;
   background: var(--glass); color: var(--text); cursor: pointer; font-size: 14px;
   backdrop-filter: blur(6px);
   transition: transform .12s, border-color .15s, background .15s;
 }
-.pref-btn:hover {
+.group-btn:hover {
   background: rgba(242, 193, 78, .1); border-color: rgba(242, 193, 78, .45);
   transform: translateY(-2px);
 }
@@ -185,7 +185,7 @@ body::before {
 .home-badge:hover { border-color: rgba(242, 193, 78, .5); }
 .home-badge .ic { color: var(--vermilion); }
 .badge-edit { font-size: 9px; color: var(--sub); border-left: 1px solid var(--line); padding-left: 6px; margin-left: 2px; }
-.pref-btn.current { border-color: var(--accent); background: rgba(242, 193, 78, .12); }
+.group-btn.current { border-color: var(--accent); background: rgba(242, 193, 78, .12); }
 #stamina-box { text-align: right; }
 #stamina-pips { display: flex; align-items: center; gap: 6px; justify-content: flex-end; color: var(--accent); font-size: 14px; }
 .pipbar { display: inline-flex; gap: 3px; }
@@ -480,7 +480,7 @@ body:has(.overlay:not(.hidden)) { overflow: hidden; }
     rgba(13, 17, 28, .90) 76%, rgba(15, 20, 36, .97) 100%);
 }
 .has-art .card-name { text-shadow: 0 1px 3px rgba(0, 0, 0, .95), 0 3px 14px rgba(0, 0, 0, .85); }
-.has-art .card-reading, .has-art .card-pref { color: #cdd3e4; text-shadow: 0 1px 4px rgba(0, 0, 0, .9); }
+.has-art .card-reading, .has-art .card-place { color: #cdd3e4; text-shadow: 0 1px 4px rgba(0, 0, 0, .9); }
 .has-art .card-desc { color: #b9c0d4; }
 .has-art .card-type { color: #cdd3e4; text-shadow: 0 1px 4px rgba(0, 0, 0, .9); }
 .has-art .stat, .has-art .tag-chip { background: rgba(9, 12, 22, .68); }
@@ -519,11 +519,11 @@ body:has(.overlay:not(.hidden)) { overflow: hidden; }
   color: #fff;
 }
 .card-reading { font-size: 10px; color: var(--sub); margin-top: 3px; letter-spacing: .12em; position: relative; z-index: 1; }
-.card-pref {
+.card-place {
   display: flex; align-items: center; justify-content: center; gap: 3px;
   font-size: 11px; color: var(--sub); margin-top: 3px; position: relative; z-index: 1;
 }
-.card-pref .ic { font-size: 10px; }
+.card-place .ic { font-size: 10px; }
 
 .card-stats { display: flex; justify-content: center; gap: 8px; margin-top: 9px; position: relative; z-index: 1; }
 .stat {
@@ -566,7 +566,7 @@ body:has(.overlay:not(.hidden)) { overflow: hidden; }
   font-size: 54px; color: rgba(255, 255, 255, .22);
   flex: 1; display: flex; align-items: center; justify-content: center;
 }
-.game-card.unknown .card-pref { margin-bottom: 6px; }
+.game-card.unknown .card-place { margin-bottom: 6px; }
 
 /* ================= 結果 ================= */
 #stage-result h2 { font-family: var(--font-display); letter-spacing: .3em; margin-bottom: 20px; font-weight: 700; }
@@ -584,7 +584,7 @@ body:has(.overlay:not(.hidden)) { overflow: hidden; }
   background: linear-gradient(90deg, rgba(255, 95, 109, .12), rgba(74, 158, 218, .06), var(--glass));
 }
 .result-name { font-family: var(--font-display); font-weight: 700; font-size: 16px; flex: 1; letter-spacing: .03em; }
-.result-pref { font-size: 12px; color: var(--sub); }
+.result-place { font-size: 12px; color: var(--sub); }
 .new-badge {
   background: linear-gradient(135deg, #ff7a6e, #e0523c); color: #fff;
   font-size: 10px; font-weight: 700; letter-spacing: .06em;
@@ -1194,7 +1194,7 @@ body:has(.overlay:not(.hidden)) { overflow: hidden; }
 .viewer-tilt .game-card.rarity-ur { box-shadow: 0 0 90px rgba(255, 120, 150, .35), 0 0 40px rgba(74, 158, 218, .25), 0 30px 80px rgba(0, 0, 0, .65); }
 .viewer-tilt .card-name { font-size: 36px; margin-top: 20px; }
 .viewer-tilt .card-reading { font-size: 13px; margin-top: 6px; letter-spacing: .2em; }
-.viewer-tilt .card-pref { font-size: 13px; margin-top: 5px; }
+.viewer-tilt .card-place { font-size: 13px; margin-top: 5px; }
 .viewer-tilt .rarity-gem { font-size: 13px; padding: 3px 12px; border-radius: 8px; }
 .viewer-tilt .card-type { font-size: 12px; }
 .viewer-tilt .card-stats { gap: 12px; margin-top: 14px; }
@@ -1212,7 +1212,7 @@ body:has(.overlay:not(.hidden)) { overflow: hidden; }
     rgba(13, 17, 28, .72) 80%, rgba(15, 20, 36, .92) 100%);
 }
 .viewer-tilt .card-art img { filter: saturate(1.1) contrast(1.04); }
-.viewer-tilt.has-art .card-reading, .viewer-tilt .has-art .card-pref { text-shadow: 0 1px 6px rgba(0, 0, 0, 1); }
+.viewer-tilt.has-art .card-reading, .viewer-tilt .has-art .card-place { text-shadow: 0 1px 6px rgba(0, 0, 0, 1); }
 /* カーソルに追従する光の反射 */
 .viewer-glare {
   position: absolute; inset: 0; border-radius: 18px; pointer-events: none;
@@ -1285,11 +1285,11 @@ body.shake { animation: shakeBody .5s; }
 /* タッチ端末: ホバーの浮き上がりを無効化（タップ後に張り付くのを防ぐ）し、
    代わりに押した瞬間のフィードバックを付ける */
 @media (hover: none) {
-  .big-btn:hover:not(:disabled), .sub-btn:hover, .pref-btn:hover,
+  .big-btn:hover:not(:disabled), .sub-btn:hover, .group-btn:hover,
   .mini-card:hover, .coll-cell:hover, .result-row:hover,
   .boss-chip:not(.locked):hover { transform: none; box-shadow: none; }
   .mini-card:hover { box-shadow: 0 5px 14px rgba(0, 0, 0, .35); }
-  .big-btn:active:not(:disabled), .sub-btn:active, .pref-btn:active,
+  .big-btn:active:not(:disabled), .sub-btn:active, .group-btn:active,
   .mini-card:active, .coll-cell:active, .boss-chip:not(.locked):active { transform: scale(.97); }
 }
 
@@ -1368,7 +1368,7 @@ body.shake { animation: shakeBody .5s; }
   .showdown-card { flex: 1 1 0; width: auto; min-width: 0; max-width: 110px; }
   .showdown-card .game-card { min-height: 92px; padding: 4px 3px 4px; }
   .showdown-card .card-name { font-size: 11px; margin-top: 2px; line-height: 1.2; }
-  .showdown-card .card-reading, .showdown-card .card-pref,
+  .showdown-card .card-reading, .showdown-card .card-place,
   .showdown-card .card-tags, .showdown-card .card-type,
   .showdown-card .card-seal { display: none; }
   .showdown-card .rarity-gem { font-size: 8px; padding: 1.5px 5px; }

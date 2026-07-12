@@ -37,8 +37,9 @@
     <div class="onboard-inner">
       <h1 class="game-title">地域カードバトル</h1>
       <p class="title-sub">LOCAL CARD BATTLE</p>
-      <p class="onboard-lead">あなたの<strong>地元</strong>はどこ？<br><span class="onboard-note">地元の都道府県のカードが出やすくなります</span></p>
-      <div id="pref-picker"></div>
+      <!-- リード文・選択肢はjs/config.jsのFAVORITE設定から描画される -->
+      <p class="onboard-lead"></p>
+      <div id="group-picker"></div>
     </div>
   </div>
 
@@ -99,10 +100,10 @@
       <section id="tab-battle" class="tab-panel hidden">
         <div id="battle-stats" class="battle-stats"></div>
 
-        <!-- 全国制覇（47都道府県の主） -->
+        <!-- 制覇モード（固定ボスの連戦。見出しはconfig.jsのCONQUEST.title） -->
         <div class="conquest-box">
           <div class="conquest-head">
-            <span class="deck-title">全国制覇</span>
+            <span class="deck-title" id="conquest-title">全国制覇</span>
             <span id="conquest-progress"></span>
           </div>
           <div id="conquest-grid"></div>
@@ -151,7 +152,7 @@
       <!-- 図鑑タブ -->
       <section id="tab-collection" class="tab-panel hidden">
         <div class="filters">
-          <select id="filter-region">
+          <select id="filter-category">
             <option value="">全地方</option>
           </select>
           <select id="filter-rarity">
