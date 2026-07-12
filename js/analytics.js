@@ -8,7 +8,7 @@
 // PVは自動計測。ゲーム固有の行動は track() でカスタムイベントとして送る
 // （GA4の「イベント」レポートで開封数・対戦数・シェア数などが見られる）
 
-export const GA_ID = '';   // 例: 'G-XXXXXXXXXX'
+export const GA_ID = 'G-SW8DDDVWKV';
 
 export function initAnalytics() {
   if (!GA_ID || location.hostname === 'localhost') return;   // ローカル開発は計測しない

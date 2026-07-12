@@ -5,6 +5,7 @@ import * as B from './battle.js';
 import { initAds, initBanners, showRewarded, showInterstitial } from './ads.js';
 import { share, shareUrl, initShare } from './share.js';
 import { buildShareImage } from './shareimg.js';
+import { initAnalytics, track } from './analytics.js';
 
 let CARDS = [];
 let SYNERGIES = [];
@@ -58,6 +59,7 @@ async function init() {
   initAds();
   initBanners();
   initShare();
+  initAnalytics();
 
   if (!S.getState().homePref) {
     showOnboarding();
@@ -285,6 +287,7 @@ function tryOpenPack(useTicket = false, quick = false) {
   } else if (!S.spendStamina(S.PACK_COST)) {
     return;
   }
+  track('pack_open', { method: useTicket ? 'ticket' : 'stamina' });
   const st = S.getState();
   const pity = st.pitySinceSSR >= S.PITY_THRESHOLD;
   const guarantee = nextGuarantee();   // totalDrawsを進める前に、このパックの確定枠を確定させる
@@ -1027,6 +1030,7 @@ let lastBattleOpts = undefined;
 function startBattle(opts = {}) {
   const pDeck = deckCards();
   if (pDeck.length < B.DECK_SIZE) return;
+  track('battle_start', { mode: opts.bossPref ? 'boss' : opts.cpuDeck ? 'friend' : 'cpu' });
   lastBattleOpts = opts;
   const cDeck = opts.cpuDeck || B.buildCpuDeck(CARDS, pDeck, SYNERGIES);
   const pA = B.analyzeDeck(pDeck, SYNERGIES);

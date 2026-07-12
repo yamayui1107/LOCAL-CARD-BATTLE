@@ -1,5 +1,7 @@
 // SNS共有。スマホはOSの共有シート（Web Share API・画像添付対応）、
 // 非対応環境（PCブラウザ等）は 画像プレビュー + X / LINE / 保存 / コピー の簡易シートを出す
+import { track } from './analytics.js';
+
 const HASHTAG = '地域カードバトル';
 
 /** 共有用のサイトURL（?vs= などのパラメータを付けられる） */
@@ -19,6 +21,7 @@ export function shareUrl(params = {}) {
  */
 export async function share(text, { url = shareUrl(), image = null } = {}) {
   const full = `${text} #${HASHTAG}`;
+  track('share', { with_image: !!image });
 
   // 画像付きのOS共有シート
   if (image && navigator.canShare) {
