@@ -1,0 +1,216 @@
+card_id,file,article,license,artist,source_url
+T001,images/T001.png,インターネット,CC BY 2.5,The Opte Project,"https://commons.wikimedia.org/wiki/File:Internet_map_1024_-_transparent,_inverted.png"
+T003,images/T003.png,HTTP,Public domain,IETF HTTP Working Group (HTTPbis),https://commons.wikimedia.org/wiki/File:HTTP_logo.svg
+T004,images/T004.jpg,Domain Name System,CC BY-SA 3.0,Jane Kruch,https://commons.wikimedia.org/wiki/File:Structure_DNS.jpg
+T005,images/T005.png,en:HTTPS,Public domain,IETF HTTP Working Group (HTTPbis),https://commons.wikimedia.org/wiki/File:HTTP_logo.svg
+T006,images/T006.png,en:OSI model,Public domain,Runtux,https://commons.wikimedia.org/wiki/File:OSI-model-Communication.svg
+T008,images/T008.png,ルーター,CC BY-SA 3.0,Charles Féval,https://commons.wikimedia.org/wiki/File:SPOF.png
+T009,images/T009.png,Wi-Fi,Public domain,Original: Wi-Fi Alliance Derivative work: Amada44,https://commons.wikimedia.org/wiki/File:Wi-Fi.svg
+T010,images/T010.png,Virtual private network,CC BY-SA 4.0,Ludovic.ferre (talk · contribs),https://commons.wikimedia.org/wiki/File:Virtual_Private_Network_overview.svg
+T011,images/T011.png,en:5G,CC BY-SA 4.0,Michel Bakni,https://commons.wikimedia.org/wiki/File:Cellular_network_standards_and_generation_timeline.svg
+T013,images/T013.png,en:Dynamic Host Configuration Protocol,CC BY-SA 4.0,Michel Bakni,https://commons.wikimedia.org/wiki/File:DHCP_Client-Server_model_-_en.png
+T016,images/T016.png,ネットワークアドレス変換,CC BY-SA 4.0,Michel Bakni,https://commons.wikimedia.org/wiki/File:NAT_Concept-en.svg
+T017,images/T017.png,en:Ethernet,CC0,Wikideas1,https://commons.wikimedia.org/wiki/File:Ethernet_connector.webp
+T019,images/T019.png,Local area network,CC BY-SA 4.0,Michel Bakni,https://commons.wikimedia.org/wiki/File:Data_Networks_classification_by_spatial_scope.svg
+T020,images/T020.jpg,スイッチングハブ,CC BY-SA 3.0,Shift,https://commons.wikimedia.org/wiki/File:Switching_Hub.jpg
+T023,images/T023.png,en:Subnet,CC BY-SA 4.0,Michel Bakni,https://commons.wikimedia.org/wiki/File:Subnetting_Concept-en.svg
+T025,images/T025.png,Ping,GPL,Software: YOSHIFUJI Hideaki / USAGI/WIDE ProjectScreenshot: VulcanSphere,https://commons.wikimedia.org/wiki/File:Ping_iputils_screenshot.png
+T028,images/T028.png,プロキシ,CC0,緑さん,https://commons.wikimedia.org/wiki/File:Proxy_concept_ja.png
+T030,images/T030.jpg,en:Bluetooth,CC BY-SA 3.0,CIA MAN275,https://commons.wikimedia.org/wiki/File:Plantronics_Voyager_Legend.JPG
+T031,images/T031.jpg,en:Routing,CC BY-SA 4.0,Jan Bellon,https://commons.wikimedia.org/wiki/File:Network_Routing_Illustration_Diagram.jpg
+T033,images/T033.png,公開鍵暗号,Public domain,KohanX (talk),https://commons.wikimedia.org/wiki/File:Public-key-crypto-1.svg
+T035,images/T035.png,en:SQL injection,CC BY-SA 3.0,KDeltchev,https://commons.wikimedia.org/wiki/File:KD_SQLIA_Classification_2010.png
+T036,images/T036.png,ファイアウォール,CC BY-SA 3.0,Bruno Pedrozo,https://commons.wikimedia.org/wiki/File:Firewall.png
+T037,images/T037.png,en:Denial-of-service attack,LGPL,Everaldo Coelho and YellowIcon,https://commons.wikimedia.org/wiki/File:Stachledraht_DDos_Attack.svg
+T041,images/T041.jpg,en:Multi-factor authentication,CC BY 2.0,"Tony Webster from Minneapolis, Minnesota, United States",https://commons.wikimedia.org/wiki/File:U2F_Hardware_Authentication_Security_Keys_(Yubico_Yubikey_4_and_Feitian_MultiPass_FIDO)_(42286852310).jpg
+T044,images/T044.webp,シングルサインオン,CC BY-SA 4.0,Software: Wikimedia Foundation and contributorsScreenshot: VulcanSphere,https://commons.wikimedia.org/wiki/File:Wikimedia_Developer_Single-Sign_On_screenshot.webp
+T047,images/T047.png,en:Digital signature,CC BY-SA 4.0,https://Reinwaldbrian49@gmail.comFlippyFlink,https://commons.wikimedia.org/wiki/File:Private_key_signing.svg
+T048,images/T048.png,ハッシュ関数,Public domain,Jorge Stolfi,https://commons.wikimedia.org/wiki/File:Hash_table_4_1_1_0_0_1_0_LL.svg
+T049,images/T049.png,共通鍵暗号,CC BY-SA 4.0,Michel Bakni,https://commons.wikimedia.org/wiki/File:Simple_symmetric_encryption-en.svg
+T056,images/T056.jpg,en:Port scanner,CC BY-SA 4.0,Arphotog,https://commons.wikimedia.org/wiki/File:Cisco_ASYNC_32A.jpg
+T060,images/T060.png,ボットネット,LGPL,Everaldo Coelho and YellowIcon,https://commons.wikimedia.org/wiki/File:Stachledraht_DDos_Attack.svg
+T064,images/T064.png,公開鍵証明書,CC BY-SA 3.0,Giaros,https://commons.wikimedia.org/wiki/File:%E5%85%AC%E9%96%8B%E9%8D%B5%E8%A8%BC%E6%98%8E%E6%9B%B8%E3%81%AE%E7%99%BA%E8%A1%8C%E3%83%97%E3%83%AD%E3%82%BB%E3%82%B9.png
+T065,images/T065.png,C言語,CC BY-SA 4.0,Cobaiahackers,https://commons.wikimedia.org/wiki/File:C1stEdition.svg
+T066,images/T066.png,en:Python (programming language),GPL,www.python.org,https://commons.wikimedia.org/wiki/File:Python-logo-notext.svg
+T067,images/T067.png,JavaScript,Public domain,Chris Williams,https://commons.wikimedia.org/wiki/File:Unofficial_JavaScript_logo_2.svg
+T069,images/T069.png,C++,Public domain,Jeremy Kratz,https://commons.wikimedia.org/wiki/File:ISO_C%2B%2B_Logo.svg
+T070,images/T070.png,Fortran,Public domain,Fortran-lang community,https://commons.wikimedia.org/wiki/File:Fortran_logo.svg
+T071,images/T071.png,LISP,CC BY-SA 4.0,Lisp,https://commons.wikimedia.org/wiki/File:Lisplogo.png
+T072,images/T072.png,TypeScript,Public domain,™/®Microsoft,https://commons.wikimedia.org/wiki/File:Typescript_logo_2020.svg
+T075,images/T075.png,en:C,CC BY-SA 4.0,1234qwer1234qwer4,https://commons.wikimedia.org/wiki/File:Latin_letter_C.svg
+T076,images/T076.jpg,COBOL,Public domain,CODASYL,https://commons.wikimedia.org/wiki/File:COBOL_Report_Apr60.djvu
+T077,images/T077.png,アセンブリ言語,Public domain,Swtpc6800 en:User:Swtpc6800 Michael Holley,https://commons.wikimedia.org/wiki/File:Motorola_6800_Assembly_Language.png
+T078,images/T078.png,en:Ruby (programming language),Public domain,"Yukihiro Matsumoto, Ruby Visual Identity Team",https://commons.wikimedia.org/wiki/File:Ruby_logo.svg
+T082,images/T082.png,Haskell,Public domain,Darrin A Thompson; Jeffrey Wheeler,https://commons.wikimedia.org/wiki/File:Haskell-Logo.svg
+T083,images/T083.png,Perl,CC BY-SA 4.0,Sebastian Riedel,https://commons.wikimedia.org/wiki/File:Perl5Raptor.png
+T084,images/T084.png,en:R,CC BY-SA 4.0,1234qwer1234qwer4,https://commons.wikimedia.org/wiki/File:Latin_letter_R.svg
+T085,images/T085.png,Scala,CC BY 4.0,"Lightbend, Inc.",https://commons.wikimedia.org/wiki/File:Scala-full-color.svg
+T086,images/T086.png,en:BASIC,Public domain,Belbury,https://commons.wikimedia.org/wiki/File:Green_bottles_BASIC.png
+T088,images/T088.png,Lua,Public domain,Alexandre Nakonechnyj (Graphic design) and Lua team (PostScript code),https://commons.wikimedia.org/wiki/File:Lua-Logo.svg
+T094,images/T094.png,Clojure,Public domain,Original: Pykello Vector: Tom Hickey and Rich Hickey,https://commons.wikimedia.org/wiki/File:Clojure_logo.svg
+T097,images/T097.png,Erlang,Public domain,Unknown authorUnknown author,https://commons.wikimedia.org/wiki/File:Erlang_logo.svg
+T098,images/T098.png,Smalltalk,CC BY-SA 4.0,Codefrau,https://commons.wikimedia.org/wiki/File:Smalltalk_Balloon.svg
+T099,images/T099.png,World Wide Web,CC BY 2.5,The Opte Project,"https://commons.wikimedia.org/wiki/File:Internet_map_1024_-_transparent,_inverted.png"
+T100,images/T100.png,HyperText Markup Language,Public domain,Html-source-code3.png: Reisio derivative work: Rehua (talk),https://commons.wikimedia.org/wiki/File:HTML_source_code_example.svg
+T103,images/T103.png,JSON,Public domain,Douglas Crockford,https://commons.wikimedia.org/wiki/File:JSON_vector_logo.svg
+T104,images/T104.png,XML,CC BY-SA 2.5,Dreftymac,https://commons.wikimedia.org/wiki/File:XML.svg
+T107,images/T107.png,Ajax,CC BY-SA 3.0,"DanielSHaischt, via Wikimedia Commons",https://commons.wikimedia.org/wiki/File:Ajax-vergleich-en.svg
+T108,images/T108.png,en:WebSocket,CC0,Unknown authorUnknown author,https://commons.wikimedia.org/wiki/File:WebSocket_colored_logo.svg
+T112,images/T112.png,GraphQL,BSD,Facebook,https://commons.wikimedia.org/wiki/File:GraphQL_Logo.svg
+T113,images/T113.png,WebAssembly,CC0,Carlos Baraza,https://commons.wikimedia.org/wiki/File:WebAssembly_Logo.svg
+T116,images/T116.jpg,レスポンシブウェブデザイン,CC BY-SA 3.0,User:tfinc,https://commons.wikimedia.org/wiki/File:Responsive_design_-_Commons_Android_app.jpg
+T118,images/T118.jpg,en:Accessibility,CC BY 4.0,Baron Maddock,https://commons.wikimedia.org/wiki/File:MAD_BS_Moon_fixtures_(cropped_2).jpg
+T120,images/T120.png,Sass,Public domain,http://sass-lang.com/,https://commons.wikimedia.org/wiki/File:Sass_Logo_Color.svg
+T122,images/T122.png,ウェブストレージ,CC BY-SA 2.5,Dreftymac,https://commons.wikimedia.org/wiki/File:HTML.svg
+T125,images/T125.png,en:Favicon,CC BY-SA 4.0,"Screenshot and editing by ZaptorZap. KDE, Mozilla Firefox and MediaWiki software by their respective authors Wikipedia favicon is a Latin capital letter ""W"" in the Hoefler Text font, and is believed to be in the public domain. Image:Magnifying glass 01.svg from the AbiClipart project. Window Decorations are from the Breezemite theme by Andrey Listopadov. Article text by multiple authors. Composition inspired by an earlier image by Ilmari Karonen, which, in turn, was inspired by an earlier image by Martyvis.",https://commons.wikimedia.org/wiki/File:Wikipedia_favicon_in_Firefox_on_KDE_(2023).png
+T128,images/T128.png,WebGL,CC BY-SA 2.5,Dreftymac,https://commons.wikimedia.org/wiki/File:HTML.svg
+T129,images/T129.png,SQL,CC BY-SA 4.0,Psiĥedelisto,https://commons.wikimedia.org/wiki/File:SQL%E3%82%AF%E3%82%A8%E3%83%AA.svg
+T135,images/T135.png,MySQL,GPL,MySQLadministrator1.jpg: derivative work: Nevetsjc (talk),https://commons.wikimedia.org/wiki/File:MySQLadministrator1.png
+T136,images/T136.png,PostgreSQL,BSD,Daniel Lundin,https://commons.wikimedia.org/wiki/File:Postgresql_elephant.svg
+T139,images/T139.png,デッドロック,FAL,The SVG code is valid. This diagram was created with Dia by VolodyA! V Anarhist.,https://commons.wikimedia.org/wiki/File:Process_deadlock.svg
+T141,images/T141.png,実体関連モデル,CC BY-SA 3.0,TheMattrix at English Wikipedia,https://commons.wikimedia.org/wiki/File:ER_Diagram_MMORPG.png
+T143,images/T143.png,MongoDB,CC BY-SA 4.0,JackPotte,https://commons.wikimedia.org/wiki/File:Robomongo_0.8.5_-_insertion.png
+T151,images/T151.png,データベース管理システム,Public domain,Jamesssss,https://commons.wikimedia.org/wiki/File:Emp_Tables_(Database).PNG
+T156,images/T156.png,en:Data warehouse,CC BY-SA 4.0,MarsJson,https://commons.wikimedia.org/wiki/File:Data_Warehouse_%26_Data-Marts_overview.svg
+T158,images/T158.gif,クイックソート,CC BY-SA 3.0,Wikipedia:en:User:RolandH,https://commons.wikimedia.org/wiki/File:Sorting_quicksort_anim.gif
+T159,images/T159.png,二分探索,CC BY-SA 4.0,AlwaysAngry,https://commons.wikimedia.org/wiki/File:Binary_Search_Depiction.svg
+T161,images/T161.png,スタック,CC0,Vectorization: Alhadis,https://commons.wikimedia.org/wiki/File:Lifo_stack.svg
+T163,images/T163.png,二分木,Public domain,Derrick Coetzee,https://commons.wikimedia.org/wiki/File:Binary_tree.svg
+T164,images/T164.jpg,en:Recursion,CC0,Alf van Beem,"https://commons.wikimedia.org/wiki/File:Droste_Cacao_Alcalinise_blikje,_foto4.JPG"
+T165,images/T165.png,ランダウの記号,CC BY 3.0,Geek3,https://commons.wikimedia.org/wiki/File:Mplwp_factorial_stirling_loglog.svg
+T166,images/T166.png,二進法,CC BY 2.5,User:Spinningspark,https://commons.wikimedia.org/wiki/File:WikipediaBinary.svg
+T167,images/T167.gif,バブルソート,CC BY-SA 3.0,Simpsons contributor,https://commons.wikimedia.org/wiki/File:Sorting_bubblesort_anim.gif
+T169,images/T169.png,ハッシュテーブル,Public domain,不明,https://commons.wikimedia.org/wiki/File:HASHTB08.svg
+T170,images/T170.png,en:Dynamic programming,CC0,User:Dcoetzee,https://commons.wikimedia.org/wiki/File:Shortest_path_optimal_substructure.svg
+T172,images/T172.jpg,en:Floating-point arithmetic,CC BY-SA 3.0,Venusianer at German Wikipedia,https://commons.wikimedia.org/wiki/File:Z3_Deutsches_Museum.JPG
+T173,images/T173.png,en:Logical connective,Public domain,"WatchduckYou can name the author as ""T. Piesk"", ""Tilman Piesk"" or ""Watchduck"".",https://commons.wikimedia.org/wiki/File:Logical_connectives_Hasse_diagram.svg
+T174,images/T174.png,オートマトン,CC BY-SA 3.0,Dnu72,https://commons.wikimedia.org/wiki/File:Automata_theory.svg
+T175,images/T175.png,en:Graph theory,CC BY-SA 4.0,Michel Bakni,https://commons.wikimedia.org/wiki/File:Example_of_simple_undirected_graph_3.svg
+T178,images/T178.gif,選択ソート,Public domain,en:Marco Polo at en.wikipedia.org,https://commons.wikimedia.org/wiki/File:Selection_sort_animation.gif
+T179,images/T179.gif,en:Insertion sort,CC BY-SA 3.0,Simpsons contributor,https://commons.wikimedia.org/wiki/File:Insertion_sort.gif
+T180,images/T180.gif,マージソート,CC BY-SA 3.0,Swfung8,https://commons.wikimedia.org/wiki/File:Merge-sort-example-300px.gif
+T183,images/T183.png,幅優先探索,CC BY 3.0,Alexander Drichel,https://commons.wikimedia.org/wiki/File:Breadth-first-tree.svg
+T186,images/T186.jpg,en:Method of complements,CC BY-SA 3.0,Gnangarra,https://commons.wikimedia.org/wiki/File:Complement_numbering_gnangarra.JPG
+T188,images/T188.png,逆ポーランド記法,Public domain,Original: blahedo Vector: Beao,https://commons.wikimedia.org/wiki/File:Postfix-dia.svg
+T189,images/T189.png,en:Euclidean algorithm,CC BY 3.0,"user:Wvbailey, converted to SVG by hand by user:brighterorange",https://commons.wikimedia.org/wiki/File:Euclid%27s_algorithm_Book_VII_Proposition_2_3.svg
+T190,images/T190.gif,en:Monte Carlo method,CC BY-SA 3.0,Titouan Christophe,https://commons.wikimedia.org/wiki/File:Approximation_d%27une_distribution_normale.gif
+T191,images/T191.png,en:Linux,CC0,"Larry Ewing, Simon Budig, Garrett LeSage",https://commons.wikimedia.org/wiki/File:Tux.svg
+T192,images/T192.png,UNIX,CC BY-SA 3.0,"Eraserhead1, Infinity0, Sav_vas",https://commons.wikimedia.org/wiki/File:Unix_history-simple.svg
+T194,images/T194.jpg,en:Central processing unit,CC BY-SA 4.0,Pstrahl,https://commons.wikimedia.org/wiki/File:Intel_i9-14900KF_CPU.jpg
+T196,images/T196.jpg,アンドロイド,CC BY-SA 3.0,Photo by Gnsin,https://commons.wikimedia.org/wiki/File:Actroid-DER_01.jpg
+T197,images/T197.png,IOS,Public domain,Original: Apple Inc. Vectorization: Totie,https://commons.wikimedia.org/wiki/File:IOS_wordmark_(2017).svg
+T198,images/T198.png,カーネル,CC BY-SA 3.0,Bobbo,https://commons.wikimedia.org/wiki/File:Kernel_Layout.svg
+T199,images/T199.jpg,GPU,CC BY-SA 3.0,Berkut,https://commons.wikimedia.org/wiki/File:6600GT_GPU.jpg
+T200,images/T200.png,シェル,GPL,Emx,https://commons.wikimedia.org/wiki/File:Bash_screenshot.png
+T201,images/T201.png,プロセス,GPLv3,Software: KDE and developers Screenshot: VulcanSphere,https://commons.wikimedia.org/wiki/File:KSysGuard_5.22.0_process_table_screenshot.png
+T203,images/T203.png,仮想記憶,Public domain,Akabe,https://commons.wikimedia.org/wiki/File:Virtual_memory_ja.svg
+T206,images/T206.png,ファイルシステム,CC BY-SA 4.0,Golftheman HFWMan,https://commons.wikimedia.org/wiki/File:Operating_system_placement-ja.svg
+T208,images/T208.png,排他制御,CC BY-SA 3.0,KWVisor,https://commons.wikimedia.org/wiki/File:Mutual_exclusion_example_with_linked_list.png
+T211,images/T211.jpg,en:Random-access memory,CC BY-SA 3.0,An-d,https://commons.wikimedia.org/wiki/File:Swissbit_2GB_PC2-5300U-555.jpg
+T212,images/T212.jpg,ハードディスクドライブ,CC BY-SA 4.0,Amirhossein Ashrafzadeh,https://commons.wikimedia.org/wiki/File:Western_Digital_WD10JPVX_1.0TB_(WDBMYH0010BNC)_1TB_Laptop_Internal_Hard_Drive.jpg
+T213,images/T213.jpg,マザーボード,CC BY-SA 3.0,Mukasora (talk),"https://commons.wikimedia.org/wiki/File:ASUS_P7P55D-E_EVO,_in_2010-08-25.jpg"
+T214,images/T214.png,デバイスドライバ,CC BY-SA 4.0,Golftheman HFWMan,https://commons.wikimedia.org/wiki/File:Operating_system_placement-ja.svg
+T215,images/T215.png,en:Computer multitasking,GPL,Paowee,https://commons.wikimedia.org/wiki/File:Fedora_Linux_multitasking.png
+T218,images/T218.jpg,en:Spooling,CC BY-SA 3.0,不明,https://commons.wikimedia.org/wiki/File:Largetape.jpg
+T219,images/T219.jpg,ブート,Public domain,Edward,https://commons.wikimedia.org/wiki/File:Payphone_loading_Microsoft_Windows_XP.jpg
+T221,images/T221.gif,Cron,CC BY-SA 4.0,VectorVoyager,https://commons.wikimedia.org/wiki/File:Cron-example-command.gif
+T222,images/T222.png,ユニバーサル・シリアル・バス,Public domain,Mobius at en.wikipedia,https://commons.wikimedia.org/wiki/File:USB_icon.svg
+T223,images/T223.webp,Docker,Apache License 2.0,"Software: Docker, Inc.Screenshot: VulcanSphere",https://commons.wikimedia.org/wiki/File:Docker_commands_screenshot.webp
+T226,images/T226.png,クラウドコンピューティング,CC BY-SA 3.0,Sam Johnston,https://commons.wikimedia.org/wiki/File:Cloud_computing.svg
+T229,images/T229.png,コンテンツデリバリネットワーク,CC0,Д.Ильин: vectorization,https://commons.wikimedia.org/wiki/File:NCDN_-_CDN.svg
+T230,images/T230.png,サーバロードバランス,CC BY-SA 4.0,^demon,https://commons.wikimedia.org/wiki/File:Elasticsearch_Cluster_August_2014.png
+T235,images/T235.png,en:On-premises software,CC BY-SA 4.0,Syced,https://commons.wikimedia.org/wiki/File:Alfresco-community-201707-site-dashboard.png
+T237,images/T237.png,冗長化,Public domain,User:Wyatts,https://commons.wikimedia.org/wiki/File:Reliability_block_diagram.png
+T240,images/T240.png,仮想マシン,CC BY-SA 4.0,"VirtualBox: Sun Microsystems, Inc., innotek GmbH; other works: various",https://commons.wikimedia.org/wiki/File:VirtualBox2.png
+T245,images/T245.png,en:Failover,CC BY-SA 4.0,PitchGLX,https://commons.wikimedia.org/wiki/File:Duckfone.png
+T247,images/T247.png,エッジコンピューティング,CC BY-SA 4.0,NoMore201,https://commons.wikimedia.org/wiki/File:Edge_computing_infrastructure.png
+T251,images/T251.png,オブジェクトストレージ,CC BY-SA 3.0,Leoinspace,https://commons.wikimedia.org/wiki/File:High_level_object_storage_architecture.png
+T253,images/T253.jpg,ディープラーニング,CC BY-SA 4.0,Sven Behnke,https://commons.wikimedia.org/wiki/File:Deep_Learning.jpg
+T254,images/T254.png,機械学習,CC BY-SA 4.0,Original: Alisneaky Vector: Zirguezi,https://commons.wikimedia.org/wiki/File:Kernel_Machine.svg
+T255,images/T255.jpg,トランスフォーマー,CC BY 2.0,"prayitno from Los Angeles, USA",https://commons.wikimedia.org/wiki/File:Transformers_costume_characters_at_Universal_Studios_Hollywood.jpg
+T257,images/T257.png,生成的人工知能,Public domain,Left intentionally blank,https://commons.wikimedia.org/wiki/File:Th%C3%A9%C3%A2tre_D%E2%80%99op%C3%A9ra_Spatial.png
+T258,images/T258.png,ニューラルネットワーク,CC BY-SA 4.0,Original: Alisneaky Vector: Zirguezi,https://commons.wikimedia.org/wiki/File:Kernel_Machine.svg
+T259,images/T259.png,強化学習,CC BY-SA 4.0,Original: Alisneaky Vector: Zirguezi,https://commons.wikimedia.org/wiki/File:Kernel_Machine.svg
+T260,images/T260.png,自然言語処理,CC BY-SA 3.0,不明,https://commons.wikimedia.org/wiki/File:Human_Language_Families_(wikicolors).png
+T262,images/T262.png,教師あり学習,CC BY-SA 4.0,Original: Alisneaky Vector: Zirguezi,https://commons.wikimedia.org/wiki/File:Kernel_Machine.svg
+T263,images/T263.png,教師なし学習,CC BY-SA 4.0,Original: Alisneaky Vector: Zirguezi,https://commons.wikimedia.org/wiki/File:Kernel_Machine.svg
+T264,images/T264.png,パターン認識,CC BY-SA 4.0,Original: Alisneaky Vector: Zirguezi,https://commons.wikimedia.org/wiki/File:Kernel_Machine.svg
+T266,images/T266.png,データマイニング,CC BY-SA 4.0,Original: Alisneaky Vector: Zirguezi,https://commons.wikimedia.org/wiki/File:Kernel_Machine.svg
+T267,images/T267.png,回帰分析,Public domain,Sewaqu,https://commons.wikimedia.org/wiki/File:Linear_regression.svg
+T269,images/T269.png,統計学,CC0,Д.Ильин: vectorization,https://commons.wikimedia.org/wiki/File:Standard_Normal_Distribution-en.svg
+T270,images/T270.jpg,en:Gradient descent,CC BY-SA 4.0,Gpeyre,https://commons.wikimedia.org/wiki/File:Gradient_Descent_in_2D.webm
+T272,images/T272.png,決定木,CC BY-SA 4.0,Original: Alisneaky Vector: Zirguezi,https://commons.wikimedia.org/wiki/File:Kernel_Machine.svg
+T273,images/T273.png,訓練・検証・テストデータセット,CC BY-SA 4.0,Original: Alisneaky Vector: Zirguezi,https://commons.wikimedia.org/wiki/File:Kernel_Machine.svg
+T276,images/T276.png,en:Loss function,CC BY-SA 4.0,M.Zkuba,https://commons.wikimedia.org/wiki/File:Comparison_of_loss_functions.png
+T281,images/T281.png,標準偏差,Public domain,JRBrown,https://commons.wikimedia.org/wiki/File:Comparison_standard_deviations.svg
+T282,images/T282.png,en:Transfer learning,CC BY-SA 4.0,Biggerj1,https://commons.wikimedia.org/wiki/File:Transfer_learning.svg
+T283,images/T283.png,Git,GPL,Git Team,https://commons.wikimedia.org/wiki/File:Gitweb.png
+T284,images/T284.png,GitHub,CC BY 4.0,Contributors of github/docs,https://commons.wikimedia.org/wiki/File:Github_Docs_repository_screenshot.png
+T285,images/T285.png,オープンソース,CC BY-SA 3.0,不明,https://commons.wikimedia.org/wiki/File:Firefox2.png
+T288,images/T288.png,en:DevOps,CC BY 3.0,Rajiv.Pant,https://commons.wikimedia.org/wiki/File:Devops.png
+T294,images/T294.jpg,en:Code review,CC BY-SA 3.0,Vajrapani666,https://commons.wikimedia.org/wiki/File:Pair_Programming_3.jpg
+T297,images/T297.jpg,ペアプログラミング,CC BY 2.0,Lisamarie Babik,https://commons.wikimedia.org/wiki/File:Pair_programming_1.jpg
+T302,images/T302.jpg,命名,CC BY-SA 3.0,Bygul,"https://commons.wikimedia.org/wiki/File:Baby_naming_ceremony,_Heathen_Freehold_Society_of_British_Columbia.jpg"
+T310,images/T310.jpg,文書,Public domain,Kelovy,https://commons.wikimedia.org/wiki/File:KVETOSLAV_SOUSTAL_BOOK.JPG
+T312,images/T312.png,en:Kanban,CC BY-SA 2.5,Kanban_principles.jpg: Jean-Baptiste Waldner derivative work: Jbarta,https://commons.wikimedia.org/wiki/File:Kanban_principles.svg
+T313,images/T313.png,IPv6,CC BY 3.0,World IPv6 Day (Internet Society),https://commons.wikimedia.org/wiki/File:World_IPv6_launch_logo.svg
+T318,images/T318.png,3ウェイ・ハンドシェイク,CC BY-SA 3.0,Tcp_normal.png: Dake derivative work: Rehua (talk),https://commons.wikimedia.org/wiki/File:Tcp_normal.svg
+T320,images/T320.jpg,en:Tethering,CC BY-SA 4.0,Picture: Paowee (talk · contribs) Wikipedia: Wikimedia Foundation OS on PC: Canonical Ltd. OS on phone: Google LLC. Browser: Mozilla Corporation,https://commons.wikimedia.org/wiki/File:Phone_tethering_on_laptop.jpg
+T321,images/T321.png,ブロードキャスト,Public domain,不明,https://commons.wikimedia.org/wiki/File:Broadcast.svg
+T322,images/T322.jpg,光ファイバー,CC BY-SA 3.0,BigRiz,https://commons.wikimedia.org/wiki/File:Fibreoptic.jpg
+T324,images/T324.jpg,en:Network topology,CC BY 2.5,The Opte Project,https://commons.wikimedia.org/wiki/File:Internet_map_1024.jpg
+T325,images/T325.png,Telnet,GPL,The original uploader was RaviC at English Wikipedia.,https://commons.wikimedia.org/wiki/File:Busybox_DG834Gt.PNG
+T327,images/T327.jpg,en:Honeypot (computing),CC BY-SA 3.0,24kanika,https://commons.wikimedia.org/wiki/File:Honeypot_diagram.jpg
+T330,images/T330.jpg,ワンタイムパスワード,CC BY-SA 4.0,Project kei,https://commons.wikimedia.org/wiki/File:Japan_Net_Bank_token.jpg
+T336,images/T336.jpg,電子透かし,Public domain,不明,https://commons.wikimedia.org/wiki/File:Visible_digital_watermarking.jpg
+T339,images/T339.jpg,ALGOL,CC BY-SA 3.0,Zvezdica2816,https://commons.wikimedia.org/wiki/File:1965_ALGOL_Logotype.jpg
+T340,images/T340.png,Ada,Public domain,Captain-Haddock17,https://commons.wikimedia.org/wiki/File:Ada_horizon_green_logo_with_slogan.svg
+T341,images/T341.png,MATLAB,Public domain,"Jarekt, LukeTriton",https://commons.wikimedia.org/wiki/File:Matlab_Logo.png
+T342,images/T342.png,en:F,CC BY-SA 4.0,1234qwer1234qwer4,https://commons.wikimedia.org/wiki/File:Latin_letter_F.svg
+T347,images/T347.png,Groovy,Apache License 2.0,The Apache Software Foundation,https://commons.wikimedia.org/wiki/File:Groovy-logo.svg
+T348,images/T348.png,Nim,MIT,Nim,https://commons.wikimedia.org/wiki/File:Nim_logo.svg
+T349,images/T349.png,D言語,Public domain,D Programming Language contributors,https://commons.wikimedia.org/wiki/File:D_Programming_Language_logo.svg
+T352,images/T352.png,React,Public domain,Facebook,https://commons.wikimedia.org/wiki/File:React-icon.svg
+T353,images/T353.png,en:Vue.js,CC BY 4.0,"Evan You, https://github.com/yyx990803",https://commons.wikimedia.org/wiki/File:Vue.js_Logo_2.svg
+T354,images/T354.png,Node.js,MIT,Ryan Dahl,https://commons.wikimedia.org/wiki/File:Node.js_logo.svg
+T355,images/T355.png,YAML,Public domain,Oren Ben-Kiki,https://commons.wikimedia.org/wiki/File:YAML_Logo.svg
+T356,images/T356.png,Markdown,CC0,Dustin Curtis,https://commons.wikimedia.org/wiki/File:Markdown-mark.svg
+T357,images/T357.png,QRコード,CC0,Momiji-Penguin,https://commons.wikimedia.org/wiki/File:QR_code_desktop_Japanese_Wikipedia.svg
+T360,images/T360.png,RSS,MPL 1.1,unnamed (Mozilla Foundation),https://commons.wikimedia.org/wiki/File:Feed-icon.svg
+T361,images/T361.png,en:WebP,CC BY-SA 3.0,Version 1 by Nohat (concept by Paullusmagnus); Wikimedia.,https://commons.wikimedia.org/wiki/File:Wikipedia-logo-v2-webp.webp
+T362,images/T362.png,en:Bootstrap (front-end framework),Public domain,Bootstrap,https://commons.wikimedia.org/wiki/File:Bootstrap_logo.svg
+T363,images/T363.jpg,en:Viewport,Public domain,Chakaiko,https://commons.wikimedia.org/wiki/File:Viewports.jpg
+T364,images/T364.png,Meta要素,CC BY-SA 2.5,Dreftymac,https://commons.wikimedia.org/wiki/File:HTML.svg
+T367,images/T367.jpg,Elasticsearch,CC BY 2.0,Richard Wöber,https://commons.wikimedia.org/wiki/File:Shay_Banon_talking_about_Elasticsearch_at_Berlin_Buzzwords_2010.jpg
+T368,images/T368.png,en:Amazon DynamoDB,CC BY-SA 4.0,AWS,https://commons.wikimedia.org/wiki/File:DynamoDB.png
+T378,images/T378.jpg,en:Quantum computing,CC BY-SA 4.0,Dev Jadiya,"https://commons.wikimedia.org/wiki/File:IBM_Quantum_Computer_Demo_at_ITUWTSA_2024,_Delhi_2.jpg"
+T379,images/T379.gif,en:Regular expression,Public domain,"William Shakespeare, Arthur Donald Innes",https://commons.wikimedia.org/wiki/File:Antony08.gif
+T380,images/T380.gif,ダイクストラ法,Public domain,Ibmua,https://commons.wikimedia.org/wiki/File:Dijkstra_Animation.gif
+T381,images/T381.gif,ヒープソート,CC BY-SA 3.0,de:User:RolandH,https://commons.wikimedia.org/wiki/File:Sorting_heapsort_anim.gif
+T384,images/T384.gif,A*,CC BY 3.0,Subh83,https://commons.wikimedia.org/wiki/File:Astar_progress_animation.gif
+T385,images/T385.gif,シェルソート,CC0,Simpsons contributor,https://commons.wikimedia.org/wiki/File:Sorting_shellsort_anim.gif
+T386,images/T386.png,Unicode,Public domain,Unicode Consortium,https://commons.wikimedia.org/wiki/File:New_Unicode_logo.svg
+T388,images/T388.gif,en:Turing completeness,MIT,Bryan Lincoln,https://commons.wikimedia.org/wiki/File:OTCA_metapixel.gif
+T389,images/T389.png,ナップサック問題,CC BY-SA 2.5,不明,https://commons.wikimedia.org/wiki/File:Knapsack.svg
+T390,images/T390.jpg,ハノイの塔,CC BY-SA 3.0,不明,https://commons.wikimedia.org/wiki/File:Tower_of_Hanoi.jpeg
+T394,images/T394.jpg,トランジスタ,Public domain,Benedikt.Seidl,https://commons.wikimedia.org/wiki/File:Transistors-white.jpg
+T395,images/T395.png,ムーアの法則,CC BY 4.0,"Max Roser, Hannah Ritchie",https://commons.wikimedia.org/wiki/File:Moore%27s_Law_Transistor_Count_1970-2020.png
+T396,images/T396.jpg,メインフレーム,Public domain,Ing. Richard Hilber,https://commons.wikimedia.org/wiki/File:IBM_System_Z9_(type_2094_inside).jpg
+T398,images/T398.jpg,Raspberry Pi,CC BY 4.0,SimonWaldherr,https://commons.wikimedia.org/wiki/File:Raspberry_Pi_5.jpg
+T399,images/T399.jpg,en:Embedded system,CC BY-SA 3.0,Pe wiki editor,https://commons.wikimedia.org/wiki/File:DHCOM_Computer_On_Module_-_AM35x.jpg
+T400,images/T400.jpg,en:Pipe (fluid conveyance),CC BY-SA 3.0,Thesupermat,https://commons.wikimedia.org/wiki/File:Paris_-_Palais_du_Louvre_-_PA00085992_-_1090.jpg
+T404,images/T404.png,Microsoft Azure,Public domain,Microsoft Corporation,https://commons.wikimedia.org/wiki/File:Microsoft_Azure.svg
+T405,images/T405.png,en:Google Cloud Platform,Public domain,Google,https://commons.wikimedia.org/wiki/File:Google_Cloud_icon_(2026).svg
+T406,images/T406.png,Cloudflare,Public domain,Cloudflare,https://commons.wikimedia.org/wiki/File:Cloudflare_Logo.svg
+T417,images/T417.png,ChatGPT,Public domain,OpenAI,https://commons.wikimedia.org/wiki/File:OpenAI_logo_2025_(symbol).svg
+T419,images/T419.png,en:Generative adversarial network,CC BY-SA 4.0,"Zhang, Aston and Lipton, Zachary C. and Li, Mu and Smola, Alexander J.",https://commons.wikimedia.org/wiki/File:Generative_adversarial_network.svg
+T423,images/T423.png,en:Turing test,CC BY 2.5,Juan Alberto Sánchez Margallo,https://commons.wikimedia.org/wiki/File:Turing_test_diagram.png
+T424,images/T424.png,en:MLOps,CC BY-SA 4.0,Cmbreuel,https://commons.wikimedia.org/wiki/File:ML_Ops_Venn_Diagram.svg
+T426,images/T426.png,異常検知,CC BY-SA 4.0,Original: Alisneaky Vector: Zirguezi,https://commons.wikimedia.org/wiki/File:Kernel_Machine.svg
+T430,images/T430.png,Visual Studio Code,Public domain,Microsoft,https://commons.wikimedia.org/wiki/File:VS_Code_(Insiders).png
+T431,images/T431.png,Vim,GPL,不明,https://commons.wikimedia.org/wiki/File:Vim-(logiciel)-console.png
+T433,images/T433.png,Emacs,GPL,Emacs development team,https://commons.wikimedia.org/wiki/File:Emacs_Dired_buffers.png
+T434,images/T434.png,en:Shell script,CC0,Huihermit,https://commons.wikimedia.org/wiki/File:FreeBSD_10_vi_RC_Firewall.png
+T439,images/T439.jpg,ラバーダック・デバッグ,CC BY-SA 3.0,Tom Morris,https://commons.wikimedia.org/wiki/File:Rubber_duck_assisting_with_debugging.jpg
+T440,images/T440.png,en:Reinventing the wheel,Public domain,Pearson Scott Foresman,https://commons.wikimedia.org/wiki/File:Hub_(PSF).png
+T442,images/T442.jpg,ハッカソン,CC BY-SA 2.0,"Alice Lee from East Palo Alto, CA, United States",https://commons.wikimedia.org/wiki/File:Yahoo!_Hack_Day.jpg

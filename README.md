@@ -9,6 +9,7 @@ engine/            共通エンジン（全ゲームで共有。ここを直す�
   css/style.css    スタイル・レアリティ演出
 games/
   battle/          地域カードバトル（テーマ設定 js/config.js・データ・画像・OGP等）
+  it-battle/       IT用語カードバトル
   （新ゲームはここにフォルダを追加）
 scripts/
   build.mjs        engine + games/<名前> を dist/ に合成（コピーのみ・依存なし）
@@ -71,3 +72,4 @@ node scripts/build.mjs battle    # → dist/ に合成される
 ## 各ゲームの詳細
 
 - [games/battle/README.md](games/battle/README.md) — 地域カードバトル（ゲーム仕様・データ作成ツール）
+- [games/it-battle/README.md](games/it-battle/README.md) — IT用語カードバトル（10分野・442枚）

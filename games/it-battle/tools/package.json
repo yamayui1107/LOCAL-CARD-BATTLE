@@ -1,0 +1,10 @@
+{
+  "name": "it-battle-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "description": "カード画像の取得・サムネイル生成ツール（sharpが無い場合はgames/battle/tools/node_modulesを流用する）",
+  "dependencies": {
+    "sharp": "^0.35.3"
+  }
+}

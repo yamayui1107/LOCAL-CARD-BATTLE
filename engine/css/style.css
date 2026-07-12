@@ -267,6 +267,7 @@ body::before {
 .pack-label-title {
   font-family: var(--font-display);
   writing-mode: vertical-rl;
+  text-orientation: upright;   /* 英字テーマ名（IT等）も縦書きで正立させる */
   font-size: 64px; font-weight: 700; letter-spacing: .3em;
   margin: 0 auto; line-height: 1;
 }
@@ -383,6 +384,7 @@ body:has(.overlay:not(.hidden)) { overflow: hidden; }
 .back-emblem span {
   font-family: var(--font-display);
   writing-mode: vertical-rl;
+  text-orientation: upright;   /* 英字テーマ名（IT等）も縦書きで正立させる */
   font-size: 26px; font-weight: 700; letter-spacing: .18em;
   color: rgba(242, 193, 78, .8); line-height: 1;
 }
@@ -1412,4 +1414,19 @@ body.shake { animation: shakeBody .5s; }
 @media (max-width: 380px) {
   .tab-btn { font-size: 11px; gap: 3px; }
   .tab-btn .ic { font-size: 13px; }
+}
+
+/* ================= 横書きテーマ名モード =================
+   英字中心のテーマ名（IT等）は縦書きだと回転・はみ出しが起きるので、
+   config.jsの GAME.labelOrientation='horizontal' で横書きに切り替えられる
+   （main.jsのapplyThemeがbodyにクラスを付ける。地域版は縦書きのまま） */
+body.label-horizontal .pack-label-title {
+  writing-mode: horizontal-tb;
+  font-size: 36px; letter-spacing: .14em;
+  white-space: nowrap;
+}
+body.label-horizontal #opening-pack .pack-label-title { font-size: 42px; }
+body.label-horizontal .back-emblem span {
+  writing-mode: horizontal-tb;
+  font-size: 20px; letter-spacing: .08em;
 }

@@ -23,6 +23,7 @@ export const GAME = {
   packTitle: '地域',                        // パック表面の大書き
   packSub: 'TRAVEL PACK ・ 5 CARDS',       // パック表面のサブテキスト
   backEmblem: '地域',                       // カード裏面の紋章文字
+  labelOrientation: 'vertical',             // パック表面・カード裏の書字方向（漢字なので縦書き）
   imageCreditLabel: 'Wikimedia Commons',   // カード詳細の画像出典リンクの表示名
 };
 

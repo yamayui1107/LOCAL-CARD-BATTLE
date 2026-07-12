@@ -10,7 +10,7 @@ export const PACK_COST = 2;
 export const REGEN_MS = 2 * 60 * 1000;      // 1スタミナ回復にかかる時間（待ち時間で離脱されないよう短め）
 export const AD_COOLDOWN_MS = 0;   // 広告は見てくれるなら何回でもOKの方針
 export const PITY_THRESHOLD = 20;            // このパック数SSR以上が出なければ次パックで確定
-export const SHARE_BONUS_TICKETS = 30;       // 初回シェアボーナス（一度きり）
+export const SHARE_BONUS_TICKETS = 30;       // 初回シェアボーナス（Xへのシェア限定・一度きり）
 
 const defaults = () => ({
   favorite: null,        // お気に入りグループ（地元）。排出重みが上がる

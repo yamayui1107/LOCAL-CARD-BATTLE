@@ -3,7 +3,7 @@ import * as S from './state.js';
 import { drawPack, rarityIndex, hasSSRorAbove, isGuaranteedPack, SR_GUARANTEE_EVERY, RARITY_ORDER } from './gacha.js';
 import * as B from './battle.js';
 import { initAds, initBanners, showRewarded, showInterstitial } from './ads.js';
-import { share, shareUrl, initShare } from './share.js';
+import { share, shareToX, shareUrl, initShare } from './share.js';
 import { buildShareImage } from './shareimg.js';
 import { initAnalytics, track } from './analytics.js';
 import { GAME, GROUP, CARD_TYPES, placeOf, FAVORITE, COLLECTION, SYNERGY, CONQUEST, SHARE } from './config.js';
@@ -68,6 +68,8 @@ async function init() {
 // config.jsのテーマ文言を静的HTMLに流し込む（index.html本体はテーマ非依存に保つ）
 function applyTheme() {
   document.title = `${GAME.title} | ${GAME.titleEn}`;
+  // 英字テーマ名は縦書きだと収まりが悪いので横書きモードを選べる
+  document.body.classList.toggle('label-horizontal', GAME.labelOrientation === 'horizontal');
   $('.logo').textContent = GAME.title;
   $('.game-title').textContent = GAME.title;
   $('.title-sub').textContent = GAME.titleEn;
@@ -216,10 +218,12 @@ function setupPackTab() {
   $('#close-overlay-btn').onclick = closeOverlay;
   $('#ad-btn').onclick = showAd;
   $('#result-ad-btn').onclick = showAd;
-  // 初回シェアボーナスのCTA（未受け取りの間だけ出る）
+  // 初回シェアボーナスのCTA（未受け取りの間だけ出る）。
+  // ボーナスはXシェア限定なので、OS共有シートを経由せずXの投稿画面へ直行する
   $('#share-bonus-btn').onclick = () => {
     const owned = CARDS.filter(c => S.ownedCount(c.id) > 0).length;
-    shareAndReward(SHARE.collection(S.getState().favorite, owned, CARDS.length));
+    shareToX(SHARE.collection(S.getState().favorite, owned, CARDS.length));
+    grantShareBonus();
   };
   // 開封結果のシェア: 5枚並びの画像＋いちばんレアな1枚の自慢文
   $('#share-pull-btn').onclick = async () => {
@@ -263,7 +267,7 @@ function renderPackInfo() {
   const sBtn = $('#share-bonus-btn');
   const shareable = S.shareBonusAvailable();
   sBtn.classList.toggle('hidden', !shareable);
-  if (shareable) sBtn.innerHTML = `シェアしてチケット${S.SHARE_BONUS_TICKETS}枚もらう <span class="cost">初回のみ</span>`;
+  if (shareable) sBtn.innerHTML = `Xでシェアしてチケット${S.SHARE_BONUS_TICKETS}枚もらう <span class="cost">初回のみ</span>`;
 
   const st = S.getState();
   const g = nextGuarantee();
@@ -445,12 +449,18 @@ function closeOverlay() {
 }
 
 // ---------- シェア ----------
-// どのシェアボタンから共有しても初回ボーナスの対象。
+// 初回ボーナスの対象は「Xへのシェア」のみ（LINE・コピーは拡散効果が薄いので対象外。
+// OS共有シートは共有先アプリを判別できないため、X宛てでも対象にできない）。
+// 確実にボーナスを取りたい人向けの導線はパックタブの専用ボタン（X直行）に用意してある。
 // 実際に投稿されたかは検証できない（intent URLは結果を返さない）ので、
 // ボーナスは一度きりに固定してある＝連打しても増えない
 async function shareAndReward(text, opts = {}) {
-  const shared = await share(text, opts);
-  if (!shared) return;
+  const channel = await share(text, opts);
+  if (channel !== 'x') return;
+  grantShareBonus();
+}
+
+function grantShareBonus() {
   const gained = S.grantFirstShareBonus();
   if (gained > 0) {
     toast(`${icon('gift')}初回シェアありがとう！ パックチケット <b>+${gained}枚</b>`);
@@ -811,7 +821,7 @@ function setupBattleTab() {
     const deck = ids.map(id => CARDS.find(c => c.id === id.toUpperCase())).filter(Boolean);
     if (deck.length !== B.DECK_SIZE || new Set(deck).size !== B.DECK_SIZE) {
       $('#friend-code').value = '';
-      $('#friend-code').placeholder = 'コードが不正です（例: P13-C128-S01-C045-C206）';
+      $('#friend-code').placeholder = 'コードが不正です（カードID5枚を「-」区切りで）';
       return;
     }
     startBattle({ cpuDeck: deck, label: 'フレンド' });

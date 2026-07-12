@@ -1,5 +1,5 @@
 @echo off
-rem 地域カードバトル起動: ローカルサーバーを立ててブラウザで開く（ビルド不要のオーバーレイ配信）
+rem �n��J�[�h�o�g���N��: ���[�J���T�[�o�[�𗧂Ăău���E�U�ŊJ���i�r���h�s�v�̃I�[�o�[���C�z�M�j
 cd /d "%~dp0..\.."
 start "" "http://localhost:8000"
 node scripts\serve.mjs battle 8000

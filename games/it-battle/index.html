@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>IT用語カードバトル | IT TERMS CARD BATTLE</title>
+<meta name="description" content="TCP/IPからPythonまでIT用語442枚がカードに！集めて・組んで・戦う無料ブラウザゲーム。ITの勉強のおともにも">
+<meta property="og:type" content="website">
+<meta property="og:title" content="IT用語カードバトル | IT TERMS CARD BATTLE">
+<meta property="og:description" content="IT用語442枚を集めて対戦！あなたの得意分野は何連鎖できる？">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230b0e17'/%3E%3Crect x='3.5' y='3.5' width='25' height='25' rx='5' fill='none' stroke='%23f2c14e' stroke-width='1.6'/%3E%3Ctext x='16' y='22.5' font-family='serif' font-size='13' font-weight='bold' fill='%23f2c14e' text-anchor='middle'%3EIT%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- SVGアイコンスプライト -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2 4.5 13.5H11L9.5 22 19.5 9.5H13z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-sword" viewBox="0 0 24 24"><path d="M14.5 17.5 3 6V3h3l11.5 11.5"/><path d="m13 19 6-6"/><path d="m16 16 4 4"/><path d="m19 21 2-2"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+  <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3z"/><path d="M19 3v4"/><path d="M17 5h4"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M10 8.5l5.5 3.5-5.5 3.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+</svg>
+
+<div id="app">
+
+  <!-- 初回: 地元選択 -->
+  <div id="onboarding" class="screen hidden">
+    <div class="onboard-inner">
+      <h1 class="game-title">IT用語カードバトル</h1>
+      <p class="title-sub">IT TERMS CARD BATTLE</p>
+      <!-- リード文・選択肢はjs/config.jsのFAVORITE設定から描画される -->
+      <p class="onboard-lead"></p>
+      <div id="group-picker"></div>
+    </div>
+  </div>
+
+  <!-- メイン画面 -->
+  <div id="home" class="screen hidden">
+    <header id="header">
+      <div class="header-left">
+        <span class="logo">IT用語カードバトル</span>
+        <span id="home-badge" class="home-badge"></span>
+      </div>
+      <div class="header-right">
+        <div id="stamina-box">
+          <div id="stamina-pips"></div>
+          <div id="stamina-timer"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 常設バナー広告（ads.jsのAD_SLOT_BANNER設定時のみ描画される） -->
+    <div class="ad-banner hidden" data-ad-pos="top"></div>
+
+    <nav id="tabs">
+      <div class="tab-group">
+        <button class="tab-btn active" data-tab="pack"><svg class="ic"><use href="#i-gift"/></svg>パック</button>
+        <button class="tab-btn" data-tab="battle"><svg class="ic"><use href="#i-sword"/></svg>対戦</button>
+        <button class="tab-btn" data-tab="collection"><svg class="ic"><use href="#i-book"/></svg>図鑑</button>
+        <button class="tab-btn" data-tab="synergy"><svg class="ic"><use href="#i-sparkles"/></svg>シナジー</button>
+      </div>
+    </nav>
+
+    <main id="main">
+      <!-- パックタブ -->
+      <section id="tab-pack" class="tab-panel">
+        <div class="pack-area">
+          <div id="pack-visual" class="pack-visual">
+            <div class="pack-pattern"></div>
+            <div class="pack-shine"></div>
+            <div id="pack-badge" class="pack-badge hidden"></div>
+            <div class="pack-label">
+              <div class="pack-label-title">IT用語</div>
+              <div class="pack-label-sub">TECH PACK ・ 5 CARDS</div>
+            </div>
+          </div>
+          <div class="pack-info">
+            <div id="collection-progress" class="collection-progress"></div>
+            <div id="guarantee-hint" class="guarantee-hint"></div>
+          </div>
+          <button id="open-pack-btn" class="big-btn">パックを開ける
+            <span class="cost"><svg class="ic"><use href="#i-bolt"/></svg>2</span></button>
+          <button id="ticket-btn" class="big-btn ticket hidden"></button>
+          <button id="share-bonus-btn" class="big-btn share-bonus hidden"></button>
+          <button id="ad-btn" class="ad-btn"></button>
+          <p class="pack-hint" id="pack-hint"></p>
+        </div>
+      </section>
+
+      <!-- 対戦タブ -->
+      <section id="tab-battle" class="tab-panel hidden">
+        <div id="battle-stats" class="battle-stats"></div>
+
+        <!-- 制覇モード（固定ボスの連戦。見出しはconfig.jsのCONQUEST.title） -->
+        <div class="conquest-box">
+          <div class="conquest-head">
+            <span class="deck-title" id="conquest-title">分野制覇</span>
+            <span id="conquest-progress"></span>
+          </div>
+          <div id="conquest-grid"></div>
+        </div>
+
+        <!-- フレンド対戦（デッキコード） -->
+        <div class="friend-box">
+          <div class="deck-title">フレンド対戦</div>
+          <p class="friend-note">デッキコードを交換して友達と対戦しよう</p>
+          <div class="friend-row">
+            <span class="friend-label">自分のコード</span>
+            <code id="my-deck-code">デッキを組むと表示されます</code>
+            <button id="copy-code-btn" class="sub-btn small">コピー</button>
+            <button id="share-code-btn" class="sub-btn small">シェア</button>
+          </div>
+          <div class="friend-row">
+            <span class="friend-label">相手のコード</span>
+            <input type="text" id="friend-code" placeholder="例: T001-T065-T129-T191-T253">
+            <button id="friend-battle-btn" class="sub-btn small">対戦する</button>
+          </div>
+        </div>
+        <div class="deck-box">
+          <div class="deck-head">
+            <span class="deck-title">デッキ編成</span>
+            <span class="deck-actions">
+              <button id="auto-deck-btn" class="sub-btn small">おまかせ編成</button>
+              <button id="clear-deck-btn" class="sub-btn small">クリア</button>
+            </span>
+          </div>
+          <div id="deck-slots"></div>
+          <div id="deck-analysis"></div>
+          <div class="deck-start">
+            <button id="start-battle-btn" class="big-btn">対戦開始</button>
+          </div>
+          <p id="battle-hint" class="pack-hint"></p>
+        </div>
+
+        <div class="deck-pool-head">
+          <span id="pool-head-label">所持カード</span>
+          <select id="pool-tag"><option value="">全タグ</option></select>
+        </div>
+        <div id="deck-pool"></div>
+        <div class="more-wrap"><button id="pool-more" class="sub-btn hidden">もっと表示</button></div>
+      </section>
+
+      <!-- 図鑑タブ -->
+      <section id="tab-collection" class="tab-panel hidden">
+        <div class="filters">
+          <select id="filter-category">
+            <option value="">全分野</option>
+          </select>
+          <select id="filter-rarity">
+            <option value="">全レアリティ</option>
+            <option value="UR">UR</option>
+            <option value="SSR">SSR</option>
+            <option value="SR">SR</option>
+            <option value="R">R</option>
+            <option value="N">N</option>
+          </select>
+          <label class="filter-check"><input type="checkbox" id="filter-owned">所持のみ</label>
+          <input type="search" id="filter-search" placeholder="用語で検索…">
+        </div>
+        <div id="collection-stats" class="collection-stats"></div>
+        <div id="collection-grid" class="collection-grid"></div>
+        <div class="more-wrap"><button id="more-btn" class="sub-btn hidden">もっと表示</button></div>
+      </section>
+
+      <!-- シナジータブ -->
+      <section id="tab-synergy" class="tab-panel hidden">
+        <p class="synergy-lead">同じタグのカードを集めるとシナジー成立。デッキに組み込むと攻撃力に倍率がかかる</p>
+        <div id="synergy-list"></div>
+      </section>
+    </main>
+
+    <footer id="footer">
+      <div class="ad-banner hidden" data-ad-pos="bottom"></div>
+      <nav class="footer-links">
+        <a href="about.html">このゲームについて・遊び方</a>
+        <a href="credits.html">クレジット</a>
+        <a href="terms.html">利用規約</a>
+        <a href="privacy.html">プライバシーポリシー</a>
+        <a href="mailto:batorukado@gmail.com">お問い合わせ</a>
+      </nav>
+      <p class="credit-note">カード画像: Wikipedia / Wikimedia Commons（出典・ライセンスは各カード詳細とクレジットに表示）。用語解説はゲーム用の要約です</p>
+      <button id="reset-btn" class="link-btn">データリセット</button>
+    </footer>
+  </div>
+
+  <!-- パック開封オーバーレイ -->
+  <div id="pack-overlay" class="overlay hidden">
+    <!-- ステージ1: パックをタップ -->
+    <div id="stage-pack" class="stage hidden">
+      <p class="stage-hint">タップして開封！</p>
+      <div id="opening-pack" class="pack-visual openable">
+        <div class="pack-pattern"></div>
+        <div class="pack-shine"></div>
+        <div id="opening-badge" class="pack-badge hidden"></div>
+        <div class="pack-label">
+          <div class="pack-label-title">IT用語</div>
+          <div class="pack-label-sub">TECH PACK ・ 5 CARDS</div>
+        </div>
+      </div>
+    </div>
+    <!-- ステージ2: カードめくり -->
+    <div id="stage-cards" class="stage hidden">
+      <div id="cards-badge" class="guarantee-tag hidden"></div>
+      <p class="stage-hint">タップしてめくろう（連打OK）</p>
+      <div id="card-row"></div>
+      <div class="stage-actions">
+        <button id="flip-all-btn" class="big-btn">一気にめくる</button>
+        <button id="to-result-btn" class="big-btn hidden">結果を見る</button>
+      </div>
+    </div>
+    <!-- ステージ3: 結果 -->
+    <div id="stage-result" class="stage hidden">
+      <h2>開封結果</h2>
+      <div id="result-list"></div>
+      <div class="stage-actions">
+        <button id="open-again-btn" class="big-btn">もう1パック
+          <span class="cost"><svg class="ic"><use href="#i-bolt"/></svg>2</span></button>
+        <button id="result-ad-btn" class="big-btn ad-recover hidden">
+          <svg class="ic"><use href="#i-play"/></svg>広告を見てスタミナ回復</button>
+        <button id="share-pull-btn" class="sub-btn small">結果をシェア</button>
+        <button id="close-overlay-btn" class="link-btn close-link">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 対戦オーバーレイ -->
+  <div id="battle-overlay" class="overlay hidden">
+    <div id="stage-battle" class="stage hidden">
+      <div class="battle-board">
+        <div id="battle-fx"></div>
+        <div id="vs-intro" class="hidden">
+          <div class="vs-intro-side cpu" id="vs-intro-cpu">CPU</div>
+          <div class="vs-intro-mark">VS</div>
+          <div class="vs-intro-side you">あなた</div>
+        </div>
+        <div class="side-tag">CPU</div>
+        <div class="showdown-row" id="cpu-deck-row"></div>
+        <div id="showdown-center">
+          <div id="syn-banner"></div>
+          <div id="power-row">
+            <div class="power-box cpu">
+              <span class="power-side">CPU</span>
+              <span class="power-num" id="cpu-power">???</span>
+              <span class="power-detail" id="cpu-power-detail"></span>
+            </div>
+            <div id="vs-mark">VS</div>
+            <div class="power-box player">
+              <span class="power-side">あなた</span>
+              <span class="power-num" id="player-power">???</span>
+              <span class="power-detail" id="player-power-detail"></span>
+            </div>
+          </div>
+        </div>
+        <div class="showdown-row" id="player-deck-row"></div>
+        <div class="side-tag you">あなた</div>
+        <div class="battle-skip"><button id="battle-skip-btn" class="link-btn">スキップ ▸</button></div>
+      </div>
+    </div>
+    <div id="stage-battle-result" class="stage hidden">
+      <h2 id="battle-result-title"></h2>
+      <div id="battle-result-body"></div>
+      <div class="stage-actions">
+        <button id="battle-again-btn" class="big-btn">もう一戦</button>
+        <button id="battle-ad-btn" class="big-btn ad-recover hidden">
+          <svg class="ic"><use href="#i-play"/></svg>広告を見てスタミナ回復</button>
+        <button id="battle-share-btn" class="sub-btn">シェア</button>
+        <button id="battle-close-btn" class="sub-btn">閉じる</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- カード詳細モーダル（ビューワー） -->
+  <div id="card-modal" class="overlay hidden">
+    <div class="card-viewer" id="card-modal-content"></div>
+  </div>
+
+  <!-- 広告モーダル -->
+  <div id="ad-modal" class="overlay hidden">
+    <div class="modal-box ad-box">
+      <p class="ad-title"><svg class="ic"><use href="#i-play"/></svg> 広告視聴中…（ダミー）</p>
+      <div class="ad-fake">ここに広告が表示される予定</div>
+      <div id="ad-countdown" class="ad-countdown">15</div>
+    </div>
+  </div>
+
+  <!-- SNS共有シート（Web Share API非対応環境のフォールバック） -->
+  <div id="share-modal" class="overlay hidden">
+    <div class="modal-box share-box">
+      <p class="share-title">シェアする</p>
+      <img id="share-img" class="share-img hidden" alt="シェア画像">
+      <pre class="share-preview"></pre>
+      <div class="share-btns">
+        <a id="share-x" class="sub-btn small" target="_blank" rel="noopener">X に投稿</a>
+        <a id="share-line" class="sub-btn small" target="_blank" rel="noopener">LINE で送る</a>
+        <a id="share-save" class="sub-btn small hidden">画像を保存</a>
+        <button id="share-copy" class="sub-btn small">コピー</button>
+      </div>
+      <p class="share-note">Xに画像を付けるには「画像を保存」してから投稿に添付してください</p>
+      <button id="share-close" class="link-btn close-link">閉じる</button>
+    </div>
+  </div>
+
+  <!-- 演出用フラッシュ -->
+  <div id="flash"></div>
+
+  <!-- 報酬などの通知（オーバーレイより手前に出す） -->
+  <div id="toast" class="toast hidden"></div>
+</div>
+
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
