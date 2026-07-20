@@ -5,9 +5,12 @@ import { GAME } from './config.js';
 
 const HASHTAG = GAME.hashtag;
 
-/** 共有用のサイトURL（?vs= などのパラメータを付けられる） */
+/** 共有用のサイトURL（?vs= などのパラメータを付けられる）。
+ * GAME.siteUrl（本番URL）が設定されていればそちらを使う。
+ * 「今開いているURL」だと、Vercelのデプロイ固有URL（要ログイン）でプレイ中に
+ * シェアした場合、受け取った人が認証ページに飛ばされてしまうため */
 export function shareUrl(params = {}) {
-  const u = new URL(location.origin + location.pathname);
+  const u = new URL(GAME.siteUrl || location.origin + location.pathname);
   for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
   return u.toString();
 }

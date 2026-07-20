@@ -24,6 +24,9 @@ export const GAME = {
   packSub: 'TRAVEL PACK ・ 5 CARDS',       // パック表面のサブテキスト
   backEmblem: '地域',                       // カード裏面の紋章文字
   labelOrientation: 'vertical',             // パック表面・カード裏の書字方向（漢字なので縦書き）
+  // 本番URL。シェアリンクを常にこのURLにする（空なら開いているURLを使う）。
+  // Vercelのデプロイ固有URL（要ログイン）が拡散されるのを防ぐため、公開後は必ず設定すること
+  siteUrl: '',
   imageCreditLabel: 'Wikimedia Commons',   // カード詳細の画像出典リンクの表示名
 };
 

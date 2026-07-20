@@ -16,6 +16,9 @@ export const GAME = {
   packSub: 'TECH PACK ・ 5 CARDS',         // パック表面のサブテキスト
   backEmblem: 'IT',                         // カード裏面の紋章文字
   labelOrientation: 'horizontal',           // パック表面・カード裏の書字方向（英字混じりなので横書き）
+  // 本番URL。シェアリンクを常にこのURLにする（空なら開いているURLを使う）。
+  // Vercelのデプロイ固有URL（要ログイン）が拡散されるのを防ぐため、公開後は必ず設定すること
+  siteUrl: '',
   imageCreditLabel: 'Wikimedia Commons',   // 画像を導入したときの出典リンク表示名（現状カード画像なし）
 };
 
